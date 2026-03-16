@@ -63,11 +63,11 @@
 % ---------------------------------------------------------------
 % INFORMAÇÕES DO DOCUMENTO
 % ---------------------------------------------------------------
-\titulo{Título do Trabalho de Conclusão de Curso}
-\autor{Nome Completo do Aluno}
+\titulo{AVALIAÇÃO DE DESEMPENHO DE ALGORITMOS DE VISÃO COMPUTACIONAL NO SUPORTE À GRADUAÇÃO DE CARTAS POKÉMON TCG}
+\autor{Matheus da Silva Marini -- Matrícula: 1142514833}
 \local{São Paulo}
-\data{2025}
-\orientador{Prof. Nome do Orientador}
+\data{2026}
+\orientador{Prof. Afonso Lelis}
 % \coorientador{Prof. Nome do Coorientador} % Descomente se houver coorientador
 
 \instituicao{%
@@ -75,12 +75,12 @@
   \par
   Unidade Santo Amaro
   \par
-  Curso de [Nome do Curso]
+  Curso de Ciência da Computação
 }
 
 \tipotrabalho{Trabalho de Conclusão de Curso I}
 
-\preambulo{Proposta de Trabalho de Conclusão de Curso apresentado ao SENAC Santo Amaro como requisito parcial para aprovação na disciplina de TCC1 do curso de [Nome do Curso].}
+\preambulo{Proposta de Trabalho de Conclusão de Curso apresentado ao SENAC Santo Amaro como requisito parcial para aprovação na disciplina de TCC1 do curso de Ciência da Computação.}
 
 % ---------------------------------------------------------------
 % COMPILA O ÍNDICE
@@ -117,12 +117,12 @@
 % RESUMO
 % ---------------------------------------------------------------
 \begin{resumo}
-Este documento apresenta a proposta inicial do Trabalho de Conclusão de Curso (TCC1) desenvolvido no SENAC Santo Amaro. O objetivo deste trabalho é [descrever brevemente o objetivo principal do TCC]. A justificativa para este estudo baseia-se em [descrever brevemente a justificativa]. A revisão bibliográfica abrange [mencionar os principais tópicos]. Como solução proposta, pretende-se [descrever brevemente a solução]. Este trabalho está organizado em três capítulos que apresentam a introdução ao tema, a revisão bibliográfica que fundamenta a pesquisa, o desenvolvimento com a solução proposta e o cronograma de trabalho, seguidos das referências bibliográficas.
+Este documento apresenta a proposta inicial do Trabalho de Conclusão de Curso (TCC1) desenvolvido no SENAC Santo Amaro. O objetivo deste trabalho é avaliar o desempenho de algoritmos de visão computacional no suporte à graduação de cartas Pokémon TCG, com foco na redução do tempo de inspeção. A justificativa para este estudo baseia-se na necessidade de resolver um problema real de lentidão e subjetividade na graduação de cartas por meio de um artefato computacional. A revisão bibliográfica abrange visão computacional, deep learning e automação de processos. Como solução proposta, pretende-se implementar algoritmos geométricos e redes neurais para apoiar a decisão humana. Este trabalho está organizado em três capítulos que apresentam a introdução ao tema, a revisão bibliográfica que fundamenta a pesquisa, o desenvolvimento com a solução proposta e o cronograma de trabalho, seguidos das referências bibliográficas.
 
 \vspace{\onelineskip}
 
 \noindent
-\textbf{Palavras-chave}: palavra1. palavra2. palavra3. palavra4. palavra5.
+\textbf{Palavras-chave}: Visão Computacional. Deep Learning. YOLOv8. Pokémon TCG. Design Science Research.
 \end{resumo}
 
 % ---------------------------------------------------------------
@@ -157,91 +157,159 @@ Este documento apresenta a proposta inicial do Trabalho de Conclusão de Curso (
 \chapter{Introdução}
 \label{cap:introducao}
 
-A introdução deve apresentar o tema do trabalho de forma clara e objetiva, situando o leitor no contexto da pesquisa. Neste capítulo, são apresentados o contexto no qual o problema se insere, a justificativa para a realização do estudo e os objetivos que norteiam o desenvolvimento do trabalho.
+O mercado de Trading Card Games (TCG), representado por franquias 
+como Pokémon e Magic: The Gathering, segundo projeções do setor, 
+deve movimentar aproximadamente 20 bilhões de dólares globalmente 
+em 2026, com projeção de ultrapassar 76 bilhões até 2035 \cite{BRI2026}. 
+Nesse mercado, o valor de uma carta está diretamente ligado ao seu estado 
+de conservação \cite{Nahar2025}. A PSA, fundada em 1991, foi a pioneira em 
+padronizar essa avaliação ao estabelecer uma escala de 10 pontos que se tornaria 
+norma do setor, enquanto a Beckett, em 1999, introduziu subnotas para atributos 
+individuais no processo de graduação de cartas (\textit{grading}) \cite{Shen2025}. 
+Essa metodologia baseia-se na inspeção de quatro atributos: superfície (\textit{surface}), 
+bordas (\textit{edges}), cantos (\textit{corners}) e centralização (\textit{centering}), 
+sendo a nota final, em uma escala de 1 a 10, definida pela análise combinada desses fatores \cite{Nahar2025}.
 
+O processo de graduação, no entanto, ainda é realizado de forma predominantemente manual.
+Os avaliadores inspecionam cada carta com lupas e iluminação controlada, o que torna a 
+análise demorada e sujeita à subjetividade de cada profissional \cite{Nahar2025}. 
+Isso limita a capacidade das empresas de escalar o serviço, gerando longas filas de 
+espera para os consumidores. Além disso, o manuseio frequente durante a inspeção representa 
+um risco à carta em si, pois o contato repetido pode causar desgastes que reduzem diretamente
+a nota do item avaliado.\cite{Nahar2025} Num mercado onde pequenas diferenças de conservação representam 
+grandes variações de preço, essa inconsistência tem consequências financeiras diretas \cite{Nahar2025, Warren2026}.
+
+Soluções baseadas em visão computacional já são utilizadas na indústria de manufatura para 
+automatizar inspeções de qualidade, usando arquiteturas de \textit{Deep Learning} e Redes Neurais
+Convolucionais (CNNs) para detectar defeitos em tempo real \cite{Zheng2021}. No entanto, adaptar
+essas abordagens para cartas colecionáveis apresenta desafios específicos. Variações de iluminação
+e reflexos em superfícies holográficas (\textit{foil}) podem obscurecer defeitos críticos e
+comprometer a precisão dos modelos \cite{Warren2026}. Além disso, o cálculo da centralização
+depende da detecção precisa das bordas da carta, o que exige tratamento prévio de ruídos 
+visuais para garantir medições consistentes \cite{Warren2026, Tian2022}.
+
+Embora abordagens computacionais para centralização e detecção 
+de danos já tenham sido exploradas de forma independente 
+\cite{Warren2026, Nahar2025}, as soluções existentes apresentam 
+escopo limitado ou carecem de validação sistemática que compare 
+diferentes arquiteturas no contexto específico da graduação de 
+cartas colecionáveis. Diante disso, este trabalho propõe um sistema de pré-avaliação automatizada.
+A arquitetura combina o OpenCV para o cálculo da centralização \cite{Warren2026} com o 
+modelo de detecção de objetos YOLOv8 para localizar e classificar danos de superfície 
+\cite{Hussain2023, YUE2025}. O objetivo não é substituir o avaliador humano, 
+mas oferecer uma ferramenta que organize as informações antes da inspeção final, 
+reduzindo a subjetividade e o tempo gasto por carta.
 % ---------------------------------------------------------------
 \section{Contexto}
 \label{sec:contexto}
 
-Apresente o cenário que originou o problema, ressaltando fatos, indicadores e lacunas identificadas na área de estudo. O contexto deve situar o leitor sobre o estado atual do tema, mostrando a relevância do assunto para a Computação e para a sociedade.
+O ecossistema brasileiro de cartas colecionáveis tem demonstrado 
+sinais claros de aquecimento, impulsionado principalmente pela 
+alta rotatividade no mercado secundário. Como indicador dessa tendência, 
+plataformas de revenda entre consumidores registraram aumentos expressivos
+no volume de transações; levantamentos recentes apontam um crescimento de
+130\% nas negociações de cartas da franquia Pokémon em plataformas como 
+a OLX apenas no ano de 2025 \cite{IGN2025}. Esse volume intenso de 
+vendas de cartas reforça a demanda por serviços de 
+autenticação e graduação de estado de conservação no país. Nesse cenário, empresas 
+especializadas em graduação de cartas têm surgido no Brasil para 
+atender à demanda por avaliações padronizadas, como a Capy Games, 
+graduadora brasileira que oferece serviços de avaliação de estado 
+de conservação de cartas TCG \cite{CapyGames2026}.
 
-Descreva o ambiente ou domínio em que o problema ocorre, utilizando dados e referências que comprovem a existência do problema. Explique quem são os principais afetados e quais são as consequências de não resolvê-lo.
+O processo de graduação realizado por essas empresas é conduzido 
+manualmente, com avaliadores inspecionando cada carta de forma 
+individual. Esse modelo apresenta um gargalo operacional claro: 
+a capacidade de processamento é limitada pelo tempo e pela 
+disponibilidade de avaliadores humanos. A própria Capy Games, 
+por exemplo, exibe seu serviço principal de graduação como 
+indisponível em razão de alta demanda, com previsão de retorno 
+de envios em breve \cite{CapyGames2026}. Esse cenário ilustra 
+diretamente o problema que este trabalho pretende endereçar: 
+a dificuldade de escalar o processo de graduação sem comprometer 
+a qualidade das avaliações.
 
-\vspace{0.3cm}
-\noindent\fbox{\parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule}{%
-\textbf{Orientação sobre citações (ABNT NBR 10520:2023)}
-
-\vspace{0.2cm}
-O aluno deve \textbf{priorizar citações indiretas} (paráfrases), nas quais a ideia do autor é reescrita com as próprias palavras. Citações diretas (transcrições literais) \textbf{não são recomendadas}, exceto quando o texto original for insubstituível --- por exemplo, definições consagradas, leis, normas técnicas ou trechos cuja reformulação alteraria o sentido.
-
-\vspace{0.2cm}
-\textbf{Citação indireta} (recomendada) --- o autor interpreta e reescreve a ideia:
-
-\vspace{0.1cm}
-\textit{Exemplo 1 --- sistema autor-data entre parênteses:}\\
-A definição clara do problema é considerada um fator determinante para o sucesso de qualquer pesquisa na área de Computação \cite{Wazlawick2020}.
-
-\vspace{0.1cm}
-\textit{Exemplo 2 --- autor como parte do texto:}\\
-Para \citeonline{Pressman2016}, a escolha de uma metodologia adequada impacta diretamente na qualidade dos resultados obtidos em projetos de software.
-
-\vspace{0.2cm}
-\textbf{Citação direta curta} (até 3 linhas, apenas quando indispensável) --- entre aspas, com indicação de página:
-
-\vspace{0.1cm}
-Segundo \citeonline[p.~42]{Wazlawick2020}, ``a formulação do problema deve ser expressa de forma clara, objetiva e delimitada, evitando ambiguidades que possam comprometer o escopo da pesquisa''.
-
-\vspace{0.2cm}
-\textbf{Citação direta longa} (mais de 3 linhas, apenas quando indispensável) --- recuo de 4\,cm, fonte menor, sem aspas:
-
-\begin{citacao}
-A revisão bibliográfica não consiste em simplesmente listar os trabalhos encontrados, mas em analisá-los criticamente, identificando convergências, divergências e lacunas que justifiquem a realização de uma nova pesquisa \cite[p.~87]{Wazlawick2020}.
-\end{citacao}
-
-\textbf{Resumo}: use citações indiretas como regra. Reserve a citação direta para casos excepcionais em que a transcrição literal seja realmente necessária.
-}}
+Além do volume, o processo manual introduz variabilidade nos 
+resultados. A análise visual de atributos como centralização, 
+estado de bordas e cantos depende da percepção subjetiva de 
+cada avaliador, o que pode gerar inconsistências entre avaliações 
+de uma mesma carta realizadas por profissionais diferentes 
+\cite{Nahar2025, Warren2026}. Em um mercado onde frações de 
+nota representam diferenças significativas de valor financeiro, 
+essa variabilidade é um problema real para compradores, 
+vendedores e para a credibilidade das próprias graduadoras.
 
 % ---------------------------------------------------------------
 \section{Justificativa}
 \label{sec:justificativa}
 
-Explicite por que resolver esse problema é importante. A justificativa deve abordar:
+Este trabalho se justifica pela necessidade de desenvolver uma 
+ferramenta computacional que reduza os dois principais problemas 
+identificados no processo atual de graduação de cartas TCG: 
+o tempo de avaliação e a subjetividade do resultado.
 
-\begin{itemize}
-    \item \textbf{Relevância acadêmica}: como este trabalho contribui para o avanço do conhecimento na área;
-    \item \textbf{Relevância prática/profissional}: quais benefícios práticos a solução trará para usuários, organizações ou a sociedade;
-    \item \textbf{Lacuna identificada}: o que ainda não foi resolvido ou explorado suficientemente pelos trabalhos existentes.
-\end{itemize}
+Do ponto de vista técnico, a proposta é viável porque algoritmos 
+de visão computacional já demonstraram capacidade de detectar 
+defeitos superficiais em produtos industriais com alta precisão 
+\cite{Zheng2021}. A adaptação dessas técnicas para o domínio 
+específico das cartas colecionáveis representa uma contribuição 
+original, dado que os desafios visuais desse domínio, como reflexos 
+holográficos e bordas de poucos milímetros, ainda carecem de 
+soluções consolidadas \cite{Warren2026}.
 
-Mostre que o trabalho não é apenas um texto sobre um tema popular, mas sim uma proposta que visa preencher uma lacuna real e contribuir de forma significativa para a área.
+Do ponto de vista prático, a ferramenta proposta não substitui 
+o avaliador humano, mas atua como um sistema de pré-avaliação 
+que organiza e quantifica as informações antes da inspeção final. 
+Isso tem potencial de reduzir o tempo médio por carta e aumentar 
+a consistência entre avaliações, beneficiando diretamente empresas 
+como a Capy Games que enfrentam filas de espera por limitações 
+de capacidade operacional \cite{CapyGames2026}. A abordagem 
+experimental adotada, testando e comparando diferentes algoritmos 
+por meio de métricas quantitativas, permite validar qual arquitetura 
+oferece a melhor relação entre precisão e velocidade de inferência, 
+produzindo resultados reproduzíveis e auditáveis \cite{Nahar2025}.
 
 % ---------------------------------------------------------------
-\section{Objetivo}
-\label{sec:objetivo}
+\section{Objetivos}
+\label{sec:objetivos}
 
-Os objetivos definem o que o trabalho pretende alcançar. Devem ser claros, mensuráveis e diretamente relacionados ao problema identificado.
+\subsection{Objetivo Geral}
 
-\subsection{Objetivo principal}
+Avaliar o desempenho de algoritmos de visão computacional no suporte à graduação de cartas Pokémon TCG, com foco na redução do tempo de inspeção.
 
-O objetivo principal deve ser \textbf{único} e sintetizar o propósito central do trabalho em uma frase direta. Ele deve responder à pergunta: \textit{o que este trabalho pretende resolver ou alcançar?}
-
-Exemplo: \textit{Desenvolver um sistema web para gerenciamento de tarefas acadêmicas que permita aos estudantes organizar suas atividades de forma colaborativa.}
-
-\textbf{Dica}: utilize verbos no infinitivo como \textit{desenvolver}, \textit{analisar}, \textit{propor}, \textit{avaliar}, \textit{implementar}, \textit{comparar}, entre outros. Evite verbos vagos como \textit{estudar} ou \textit{entender}.
-
-\subsection{Objetivos secundários}
-
-Os objetivos secundários são desdobramentos do objetivo principal. Eles descrevem as etapas ou ações necessárias para atingir o objetivo principal. Devem ser mensuráveis e verificáveis.
+\subsection{Objetivos Específicos}
 
 \begin{enumerate}
-    \item Realizar levantamento bibliográfico sobre [tema específico];
-    \item Identificar e analisar os requisitos do sistema/solução proposta;
-    \item Projetar a arquitetura da solução com base nos requisitos levantados;
-    \item Implementar um protótipo funcional da solução proposta;
-    \item Validar a solução por meio de [testes, métricas, estudo de caso, etc.].
+    \item Pré-processar e estruturar um \textit{dataset} de imagens de cartas Pokémon, aplicando técnicas para padronização de iluminação e mitigação de reflexos especulares (holográficos).
+    \item Implementar algoritmos de visão computacional de diferentes categorias para o cálculo de centralização e modelos de \textit{Deep Learning} para detecção de arranhões e desgastes.
+    \item Comparar o desempenho das abordagens implementadas através de métricas estatísticas e de custo computacional.
+    \item Propor uma interface de suporte à decisão que integre as detecções dos algoritmos e recomende uma pré-nota, visando agilizar o veredito final do avaliador humano.
 \end{enumerate}
 
-\textbf{Atenção}: cada objetivo secundário deve contribuir diretamente para o alcance do objetivo principal. Evite listar objetivos que não tenham relação clara com o problema.
+% ---------------------------------------------------------------
+\section{Metodologia Escolhida}
+\label{sec:metodologia}
+
+A metodologia adotada é a \textit{Design Science Research} (DSR) para a construção do artefato computacional, com avaliação conduzida por meio de pesquisa experimental quantitativa aplicada. Essa abordagem permitirá medir e comparar o desempenho empírico (tempo de inferência e acurácia) entre os diferentes algoritmos propostos.
+
+% ---------------------------------------------------------------
+\section{Hipótese de Pesquisa}
+\label{sec:hipotese}
+
+O uso do sistema de suporte à decisão reduz o tempo médio de inspeção por carta em pelo menos 40\% em comparação à avaliação manual sem suporte, mantendo desempenho de detecção de defeitos com \textit{F1-score} ou \textit{mAP} $\geq 0{,}90$.
+
+% ---------------------------------------------------------------
+\section{Métricas de Avaliação}
+\label{sec:metricas}
+
+As métricas utilizadas para avaliar o desempenho e a viabilidade da solução proposta serão:
+\begin{itemize}
+    \item \textbf{Erro de centralização}: MAE (erro absoluto médio) das margens estimadas vs referência (em pixels ou \%), e \% de casos dentro de um limiar de tolerância.
+    \item \textbf{Precisão (\textit{Precision}) e Revocação (\textit{Recall}):} Para medir a exatidão e a sensibilidade na detecção de danos.
+    \item \textbf{F1-Score / mAP (\textit{Mean Average Precision}):} Para comparar o saldo geral de acertos entre os algoritmos testados.
+    \item \textbf{Tempo de Inferência:} Medido em milissegundos (ms), para avaliar o custo computacional de cada modelo.
+    \item \textbf{Redução Percentual de Tempo:} Comparação do tempo médio gasto por um humano avaliando uma carta do zero \textit{versus} avaliando a carta com o suporte prévio do sistema.
+\end{itemize}
 
 % ===============================================================
 % CAPÍTULO 2 - REVISÃO BIBLIOGRÁFICA
@@ -255,13 +323,141 @@ A revisão bibliográfica tem como finalidade apresentar o embasamento teórico 
 \section{Referencial teórico}
 \label{sec:referencial}
 
-Apresente os principais conceitos, teorias e definições que fundamentam o trabalho. O referencial teórico deve fornecer ao leitor a base necessária para compreender o problema e a solução proposta.
+\subsection{Trading Card Games e o Mercado de Colecionismo}
+\label{subsec:tcg}
 
-Organize esta seção por temas ou conceitos, não por autor. Cada subseção deve abordar um conceito relevante, explicando-o e relacionando-o ao contexto do trabalho.
+Trading Card Games (TCGs) são jogos baseados em cartas colecionáveis, 
+associados a franquias de entretenimento como Pokémon e Magic: The Gathering 
+\cite{Nahar2025}. Diferentemente de jogos de cartas tradicionais, cada carta 
+em um TCG pode apresentar atributos próprios de arte, raridade e uso em jogo, 
+o que lhe confere também valor de colecionismo individual. No caso do Pokémon 
+TCG, essa combinação entre jogabilidade estratégica e cultura de colecionismo 
+também se reflete na existência de um mercado secundário ativo para a compra 
+e venda de cartas individuais \cite{Shen2025}.
 
-Por exemplo: se o trabalho envolve desenvolvimento web, aborde conceitos como arquitetura cliente-servidor, APIs REST, padrões de projeto, etc. Se envolve inteligência artificial, explique os algoritmos e técnicas que serão utilizados.
+Nesse mercado, o valor comercial de uma carta está fortemente associado ao seu 
+estado de conservação físico. Imperfeições como arranhões na superfície, 
+desgaste nas bordas ou problemas de centralização podem reduzir de forma 
+significativa o preço de mercado do item \cite{Nahar2025}. Para padronizar essa 
+avaliação e aumentar a confiabilidade das transações, consolidou-se a atuação 
+de empresas especializadas em graduação de cartas (\textit{card grading}), como 
+a PSA (\textit{Professional Sports Authenticator}) e a Beckett Grading Services 
+\cite{Shen2025}.
 
-Utilize citações para fundamentar cada conceito apresentado. Segundo \citeonline{Wazlawick2020}, o referencial teórico deve demonstrar que o autor domina os fundamentos necessários para conduzir a pesquisa.
+A PSA, fundada em 1991, teve papel pioneiro na padronização desse tipo de 
+avaliação ao adotar uma escala de 10 pontos amplamente utilizada no setor, 
+enquanto a Beckett, a partir de 1999, introduziu subnotas para atributos 
+individuais da carta, ampliando o detalhamento do processo de graduação 
+\cite{Shen2025}. Esse modelo de avaliação padronizada tornou-se central no 
+mercado secundário de cartas, pois permite autenticar, encapsular e classificar 
+itens de forma mais confiável para compradores e vendedores \cite{Heck2026}.
+
+O processo de graduação considera, em geral, quatro atributos físicos da carta: 
+superfície (\textit{surface}), bordas (\textit{edges}), cantos 
+(\textit{corners}) e centralização (\textit{centering}). A nota final, em uma 
+escala de 1 a 10, resulta da análise combinada desses fatores \cite{Nahar2025}. 
+Cartas classificadas com notas mais altas, como \textit{Gem Mint}, tendem a 
+alcançar valores substancialmente superiores aos de exemplares com notas mais 
+baixas, em razão da maior preservação de suas características físicas 
+\cite{Warren2026,Heck2026}.
+
+\subsection{Visão Computacional e Inspeção Visual Automatizada}
+\label{subsec:avi}
+
+Visão computacional é a área da ciência da computação que desenvolve 
+métodos para que sistemas digitais interpretem e analisem imagens e 
+vídeos automaticamente. Na indústria de manufatura, essa tecnologia 
+é aplicada em sistemas de inspeção visual automatizada 
+(\textit{Automated Visual Inspection} -- AVI), cuja função é 
+substituir ou apoiar a inspeção manual de qualidade em linhas de 
+produção \cite{Zheng2021}.
+
+Um sistema AVI é composto por três etapas principais: aquisição de 
+imagem, detecção de defeitos e controle de qualidade. A etapa de 
+aquisição utiliza câmeras digitais, combinadas com sistemas de iluminação controlada para garantir 
+contraste adequado entre as características do produto e possíveis 
+defeitos. A etapa de detecção aplica algoritmos de processamento de 
+imagem para identificar e classificar anomalias. Por fim, os 
+resultados são enviados ao sistema de controle de qualidade, que 
+determina a aceitação ou rejeição do produto \cite{Zheng2021}.
+
+Os algoritmos tradicionais de AVI dependem de características 
+projetadas manualmente por especialistas e tendem a ser sensíveis 
+a variações nas condições de aplicação \cite{Zheng2021}. Com o 
+avanço do \textit{Deep Learning}, uma nova geração de algoritmos passou a aprender padrões
+diretamente dos dados de treinamento. Redes Neurais Convolucionais (CNNs) tornaram-se a
+abordagem predominante nesse contexto \cite{Zheng2021}. 
+
+Na prática industrial, sistemas baseados em CNNs têm sido aplicados 
+com sucesso na inspeção de defeitos em semicondutores, aço e tecidos, 
+atingindo taxas de acurácia superiores a 99\% em alguns casos 
+\cite{Zheng2021}, o que motiva sua investigação em outros domínios 
+com desafios similares de inspeção visual, como a graduação de cartas 
+colecionáveis abordada neste trabalho.
+
+
+\subsection{Desafios Técnicos na Inspeção de Cartas}
+\label{subsec:desafios}
+
+A inspeção automatizada de cartas TCG apresenta desafios técnicos 
+que a diferenciam da inspeção industrial convencional. O primeiro 
+deles é a variação de iluminação durante a captura das imagens. 
+\citeonline{Warren2026} denominam esse fenômeno de \textit{Shadow 
+Problem}: inconsistências de brilho causadas pela geometria do 
+equipamento de captura, pelo ângulo da câmera e por reflexos 
+ambientais. Sem correção adequada, esses artefatos visuais degradam 
+a qualidade da imagem e podem levar a classificações incorretas pelos 
+modelos de graduação \cite{Warren2026}.
+
+O segundo desafio são os reflexos em superfícies holográficas 
+(\textit{foil}). Cartas com impressão holográfica refletem luz de 
+forma intensa e irregular, o que pode obscurecer defeitos críticos 
+como arranhões e desgastes de superfície. Esse comportamento óptico 
+dificulta a segmentação da imagem e compromete a precisão de modelos 
+treinados em condições de iluminação uniforme \cite{Warren2026}. 
+Para mitigar esse problema, \citeonline{Nahar2025} optaram por 
+substituir câmeras convencionais por scanners de alta resolução, 
+garantindo iluminação constante e padronizada durante a captura.
+
+O terceiro desafio é a subjetividade inerente ao processo de 
+avaliação manual. Como os quatro critérios de graduação — superfície, 
+bordas, cantos e centralização — são analisados visualmente por 
+avaliadores humanos, o resultado final tende a variar entre 
+profissionais diferentes, especialmente em casos limítrofes 
+\cite{Nahar2025}. Esse fator limita a reprodutibilidade das 
+avaliações e compromete a confiabilidade do processo em escala 
+industrial \cite{Warren2026}.
+
+Por fim, o cálculo preciso da centralização representa um desafio 
+geométrico específico. As bordas de uma carta padrão TCG têm 
+espessura de poucos milímetros, o que significa que variações 
+mínimas na detecção dessas bordas já são suficientes para alterar 
+a nota final do critério \cite{Warren2026}. Medir essas bordas com 
+precisão exige algoritmos dedicados de detecção de bordas e 
+tratamento prévio de ruídos visuais para garantir medições 
+consistentes \cite{Warren2026, Tian2022}.
+
+
+\subsection{Deep Learning e Redes Neurais Convolucionais}
+\label{subsec:dl_cnn}
+
+\textit{Deep Learning} é uma subárea do aprendizado de máquina que 
+utiliza redes neurais artificiais com múltiplas camadas para aprender 
+representações de dados a partir de exemplos, sem necessidade de 
+características projetadas manualmente \cite{Zheng2021}. No contexto 
+de visão computacional, as Redes Neurais Convolucionais (CNNs, do 
+inglês \textit{Convolutional Neural Networks}) são a arquitetura 
+predominante para tarefas de classificação de imagens, detecção de 
+objetos e inspeção de defeitos \cite{Hussain2023}. As CNNs utilizam múltiplas
+camadas convolucionais combinadas com estruturas de agrupamento (\textit{pooling}) 
+para extrair padrões visuais diretamente dos pixels da imagem \cite{Hussain2023}.
+
+Na inspeção visual automatizada de produtos industriais, CNNs têm 
+demonstrado resultados superiores aos métodos tradicionais na 
+detecção de defeitos em superfícies \cite{Zheng2021}. Esse desempenho 
+justifica sua adoção em contextos com desafios visuais similares, 
+incluindo a graduação de cartas colecionáveis \cite{Warren2026}.
+
 
 % ---------------------------------------------------------------
 \section{Metodologia da pesquisa bibliográfica}
@@ -350,7 +546,7 @@ Uma tabela comparativa ajuda a sintetizar as diferenças entre os trabalhos:
         Limitação          & [limit.]   & [limit.]   & [limit.]   & --- \\
         \bottomrule
     \end{tabular}
-    \legend{Fonte: Elaborado pelo autor (2025)}
+    \legend{Fonte: Elaborado pelo autor (2026)}
 \end{table}
 
 % ===============================================================
@@ -440,7 +636,7 @@ O cronograma a seguir apresenta, no formato de diagrama de Gantt, as atividades 
         \ganttlink{elem9}{elem10}
         \ganttlink{elem12}{elem13}
     \end{ganttchart}
-    \legend{Fonte: Elaborado pelo autor (2025)}
+    \legend{Fonte: Elaborado pelo autor (2026)}
 \end{figure}
 
 \textbf{Instruções para personalização do cronograma}:
@@ -460,50 +656,6 @@ O cronograma a seguir apresenta, no formato de diagrama de Gantt, as atividades 
 % ===============================================================
 % CAPÍTULO 4 - REFERÊNCIAS BIBLIOGRÁFICAS
 % ===============================================================
-% As referências bibliográficas são geradas automaticamente a partir
-% do arquivo bibliografia.bib, seguindo o padrão ABNT (NBR 6023).
-%
-% COMO CITAR no texto:
-%   \cite{chave}         -> (SOBRENOME, ano) — citação indireta
-%   \citeonline{chave}   -> Sobrenome (ano) — citação direta no texto
-%
-% TIPOS DE REFERÊNCIA no arquivo .bib:
-%   @book        -> Livros
-%   @article     -> Artigos de periódicos
-%   @inproceedings -> Artigos em anais de eventos
-%   @mastersthesis -> Dissertações de mestrado
-%   @phdthesis   -> Teses de doutorado
-%   @misc        -> Sites, vídeos e outros materiais
-%   @manual      -> Documentação técnica
-%
-% Veja o arquivo bibliografia.bib para exemplos de cada tipo.
-% ---------------------------------------------------------------
 \bibliography{bibliografia}
-
-% ---------------------------------------------------------------
-% APÊNDICES (se necessário)
-% ---------------------------------------------------------------
-% \begin{apendicesenv}
-% \partapendices
-%
-% \chapter{Nome do Apêndice}
-% \label{ap:apendice1}
-%
-% Conteúdo do apêndice (material elaborado pelo próprio autor).
-%
-% \end{apendicesenv}
-
-% ---------------------------------------------------------------
-% ANEXOS (se necessário)
-% ---------------------------------------------------------------
-% \begin{anexosenv}
-% \partanexos
-%
-% \chapter{Nome do Anexo}
-% \label{an:anexo1}
-%
-% Conteúdo do anexo (material de terceiros).
-%
-% \end{anexosenv}
 
 \end{document}
