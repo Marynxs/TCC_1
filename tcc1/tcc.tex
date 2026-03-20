@@ -161,14 +161,13 @@ O mercado de Trading Card Games (TCG), representado por franquias
 como Pokémon e Magic: The Gathering, segundo projeções do setor, 
 deve movimentar aproximadamente 20 bilhões de dólares globalmente 
 em 2026, com projeção de ultrapassar 76 bilhões até 2035 \cite{BRI2026}. 
-Nesse mercado, o valor de uma carta está diretamente ligado ao seu estado 
-de conservação \cite{Nahar2025}. A PSA, fundada em 1991, foi a pioneira em 
-padronizar essa avaliação ao estabelecer uma escala de 10 pontos que se tornaria 
-norma do setor, enquanto a Beckett, em 1999, introduziu subnotas para atributos 
-individuais no processo de graduação de cartas (\textit{grading}) \cite{Shen2025}. 
-Essa metodologia baseia-se na inspeção de quatro atributos: superfície (\textit{surface}), 
-bordas (\textit{edges}), cantos (\textit{corners}) e centralização (\textit{centering}), 
-sendo a nota final, em uma escala de 1 a 10, definida pela análise combinada desses fatores \cite{Nahar2025}.
+Nesse mercado, o valor de uma carta está diretamente ligado ao seu estado de conservação \cite{Nahar2025}.
+Para certificar essa condição e garantir a segurança das transações, consolidou-se o serviço especializado 
+de graduação de cartas (\textit{grading}). A PSA, fundada em 1991, foi a pioneira em padronizar essa avaliação
+ao estabelecer uma escala de 10 pontos que se tornaria norma do setor, enquanto a Beckett, em 1999, introduziu 
+subnotas para atributos individuais \cite{Shen2025}. Essa metodologia baseia-se na inspeção de quatro atributos 
+físicos: superfície (\textit{surface}), bordas (\textit{edges}), cantos (\textit{corners}) e centralização 
+(\textit{centering}), sendo a nota final definida pela análise combinada desses fatores \cite{Nahar2025}.
 
 O processo de graduação, no entanto, ainda é realizado de forma predominantemente manual.
 Os avaliadores inspecionam cada carta com lupas e iluminação controlada, o que torna a 
@@ -176,29 +175,32 @@ análise demorada e sujeita à subjetividade de cada profissional \cite{Nahar202
 Isso limita a capacidade das empresas de escalar o serviço, gerando longas filas de 
 espera para os consumidores. Além disso, o manuseio frequente durante a inspeção representa 
 um risco à carta em si, pois o contato repetido pode causar desgastes que reduzem diretamente
-a nota do item avaliado.\cite{Nahar2025} Num mercado onde pequenas diferenças de conservação representam 
+a nota do item avaliado \cite{Nahar2025}. Num mercado onde pequenas diferenças de conservação representam 
 grandes variações de preço, essa inconsistência tem consequências financeiras diretas \cite{Nahar2025, Warren2026}.
 
-Soluções baseadas em visão computacional já são utilizadas na indústria de manufatura para 
-automatizar inspeções de qualidade, usando arquiteturas de \textit{Deep Learning} e Redes Neurais
-Convolucionais (CNNs) para detectar defeitos em tempo real \cite{Zheng2021}. No entanto, adaptar
-essas abordagens para cartas colecionáveis apresenta desafios específicos. Variações de iluminação
-e reflexos em superfícies holográficas (\textit{foil}) podem obscurecer defeitos críticos e
-comprometer a precisão dos modelos \cite{Warren2026}. Além disso, o cálculo da centralização
-depende da detecção precisa das bordas da carta, o que exige tratamento prévio de ruídos 
-visuais para garantir medições consistentes \cite{Warren2026, Tian2022}.
+Diante dessas limitações, a automação tecnológica tem sido investigada 
+como alternativa à inspeção manual. Na indústria de manufatura, 
+sistemas de visão computacional já são utilizados para automatizar 
+inspeções de qualidade, usando arquiteturas de \textit{Deep Learning} 
+e Redes Neurais Convolucionais (CNNs) para detectar defeitos em tempo 
+real \cite{Zheng2021}. No entanto, adaptar essas abordagens para cartas 
+colecionáveis apresenta desafios específicos. Variações de iluminação
+e reflexos em superfícies holográficas (\textit{foil}) podem obscurecer 
+defeitos críticos e comprometer a precisão dos modelos \cite{Warren2026}. 
+Além disso, o cálculo da centralização depende da detecção precisa das 
+bordas da carta, o que exige tratamento prévio de ruídos visuais para 
+garantir medições consistentes \cite{Warren2026, Tian2022}.
 
-Embora abordagens computacionais para centralização e detecção 
-de danos já tenham sido exploradas de forma independente 
-\cite{Warren2026, Nahar2025}, as soluções existentes apresentam 
-escopo limitado ou carecem de validação sistemática que compare 
-diferentes arquiteturas no contexto específico da graduação de 
-cartas colecionáveis. Diante disso, este trabalho propõe um sistema de pré-avaliação automatizada.
-A arquitetura combina o OpenCV para o cálculo da centralização \cite{Warren2026} com o 
-modelo de detecção de objetos YOLOv8 para localizar e classificar danos de superfície 
-\cite{Hussain2023, YUE2025}. O objetivo não é substituir o avaliador humano, 
-mas oferecer uma ferramenta que organize as informações antes da inspeção final, 
-reduzindo a subjetividade e o tempo gasto por carta.
+Pesquisadores já investigaram o uso dessas técnicas no contexto 
+específico da graduação de cartas colecionáveis \cite{Warren2026, Nahar2025}, 
+mas as abordagens existentes apresentam escopo limitado ou carecem de 
+validação sistemática que compare diferentes arquiteturas nesse domínio. 
+Diante disso, este trabalho propõe um sistema de pré-avaliação automatizada.
+A arquitetura combina o OpenCV para o cálculo da centralização \cite{Warren2026} 
+com o modelo de detecção de objetos YOLOv8 para localizar e classificar 
+danos de superfície \cite{Hussain2023, YUE2025}. O objetivo não é substituir 
+o avaliador humano, mas oferecer uma ferramenta que organize as informações 
+antes da inspeção final, reduzindo a subjetividade e o tempo gasto por carta.
 % ---------------------------------------------------------------
 \section{Contexto}
 \label{sec:contexto}
