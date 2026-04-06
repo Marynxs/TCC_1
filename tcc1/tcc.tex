@@ -63,7 +63,7 @@
 % ---------------------------------------------------------------
 % INFORMAÇÕES DO DOCUMENTO
 % ---------------------------------------------------------------
-\titulo{AVALIAÇÃO DE DESEMPENHO DE ALGORITMOS DE VISÃO COMPUTACIONAL NO SUPORTE À GRADUAÇÃO DE CARTAS POKÉMON TCG}
+\titulo{Avaliação de técnicas de visão computacional para detecção de defeitos em cartas Pokémon TCG em cenários com baixo volume de dados aplicada à graduação de cartas}
 \autor{Matheus da Silva Marini -- Matrícula: 1142514833}
 \local{São Paulo}
 \data{2026}
@@ -80,7 +80,7 @@
 
 \tipotrabalho{Trabalho de Conclusão de Curso I}
 
-\preambulo{Proposta de Trabalho de Conclusão de Curso apresentado ao SENAC Santo Amaro como requisito parcial para aprovação na disciplina de TCC1 do curso de Ciência da Computação.}
+\preambulo{Proposta de Trabalho de Conclusão de Curso apresentada ao SENAC Santo Amaro como requisito parcial para aprovação na disciplina de TCC1 do curso de Ciência da Computação.}
 
 % ---------------------------------------------------------------
 % COMPILA O ÍNDICE
@@ -117,12 +117,27 @@
 % RESUMO
 % ---------------------------------------------------------------
 \begin{resumo}
-Este documento apresenta a proposta inicial do Trabalho de Conclusão de Curso (TCC1) desenvolvido no SENAC Santo Amaro. O objetivo deste trabalho é avaliar o desempenho de algoritmos de visão computacional no suporte à graduação de cartas Pokémon TCG, com foco na redução do tempo de inspeção. A justificativa para este estudo baseia-se na necessidade de resolver um problema real de lentidão e subjetividade na graduação de cartas por meio de um artefato computacional. A revisão bibliográfica abrange visão computacional, deep learning e automação de processos. Como solução proposta, pretende-se implementar algoritmos geométricos e redes neurais para apoiar a decisão humana. Este trabalho está organizado em três capítulos que apresentam a introdução ao tema, a revisão bibliográfica que fundamenta a pesquisa, o desenvolvimento com a solução proposta e o cronograma de trabalho, seguidos das referências bibliográficas.
+Este documento apresenta a proposta inicial do Trabalho de Conclusão 
+de Curso (TCC1) desenvolvido no SENAC Santo Amaro. O objetivo deste trabalho
+é comparar estratégias de visão computacional aplicadas à detecção de defeitos 
+superficiais em cartas Pokémon TCG em cenários de baixo volume de dados, 
+identificando quais abordagens apresentam melhor desempenho com conjuntos
+limitados de imagens anotadas. A justificativa baseia-se na escassez de 
+bases de dados públicas anotadas por especialistas e no alto custo de rotulagem,
+o que limita o treinamento de modelos tradicionais e motiva o uso de técnicas 
+específicas para poucos exemplos (\textit{small dataset}). Como contexto de aplicação, destaca-se o processo 
+de graduação de cartas, atualmente realizado de forma manual e sujeito à subjetividade. 
+A revisão bibliográfica abrange visão computacional, inspeção visual automatizada, Deep
+Learning, \textit{transfer learning} e técnicas para treinamento com conjuntos limitados de imagens 
+anotadas. Como solução proposta, pretende-se implementar um pipeline de treinamento e avaliação utilizando
+a arquitetura YOLO, combinada com técnicas de fotometria e aumento de dados (\textit{data augmentation}),
+comparando o impacto de diferentes estratégias de treinamento por meio de métricas quantitativas 
+em um \textit{dataset} real de 88 cartas fornecido por uma empresa brasileira especializada em graduação de cartas TCG.
 
 \vspace{\onelineskip}
 
 \noindent
-\textbf{Palavras-chave}: Visão Computacional. Deep Learning. YOLOv8. Pokémon TCG. Design Science Research.
+\textbf{Palavras-chave}: Visão Computacional. Detecção de Defeitos. Pokémon TCG. Small Datasets. YOLO.
 \end{resumo}
 
 % ---------------------------------------------------------------
@@ -158,160 +173,170 @@ Este documento apresenta a proposta inicial do Trabalho de Conclusão de Curso (
 \label{cap:introducao}
 
 O mercado de Trading Card Games (TCG), representado por franquias 
-como Pokémon e Magic: The Gathering, segundo projeções do setor, 
-deve movimentar aproximadamente 20 bilhões de dólares globalmente 
-em 2026, com projeção de ultrapassar 76 bilhões até 2035 \cite{BRI2026}. 
-Nesse mercado, o valor de uma carta está diretamente ligado ao seu estado de conservação \cite{Nahar2025}.
-Para certificar essa condição e garantir a segurança das transações, consolidou-se o serviço especializado 
-de graduação de cartas (\textit{grading}). A PSA, fundada em 1991, foi a pioneira em padronizar essa avaliação
-ao estabelecer uma escala de 10 pontos que se tornaria norma do setor, enquanto a Beckett, em 1999, introduziu 
-subnotas para atributos individuais \cite{Shen2025}. Essa metodologia baseia-se na inspeção de quatro atributos 
-físicos: superfície (\textit{surface}), bordas (\textit{edges}), cantos (\textit{corners}) e centralização 
-(\textit{centering}), sendo a nota final definida pela análise combinada desses fatores \cite{Nahar2025}.
+como Pokémon e Magic: The Gathering, deve movimentar aproximadamente 
+20 bilhões de dólares globalmente em 2026, com projeção de ultrapassar 
+76 bilhões até 2035 \cite{BRI2026}. Nesse mercado, o valor de uma carta 
+está diretamente ligado ao seu estado de conservação \cite{Nahar2025}.
+Para certificar essa condição e garantir a segurança das transações, consolidou-se
+o serviço especializado de graduação de cartas (\textit{grading}). A PSA, fundada em 1991,
+foi a pioneira em padronizar essa avaliação ao estabelecer uma escala de 10 pontos 
+que se tornaria norma do setor, enquanto a Beckett, em 1999, introduziu 
+subnotas para atributos individuais \cite{Shen2025}. Essa metodologia 
+baseia-se na inspeção de quatro atributos físicos: superfície (\textit{surface}), bordas
+(\textit{edges}), cantos (\textit{corners}) e centralização (\textit{centering}), sendo a nota final definida 
+pela análise combinada desses fatores \cite{Nahar2025}.
 
 O processo de graduação, no entanto, ainda é realizado de forma predominantemente manual.
-Os avaliadores inspecionam cada carta com lupas e iluminação controlada, o que torna a 
-análise demorada e sujeita à subjetividade de cada profissional \cite{Nahar2025}. 
-Isso limita a capacidade das empresas de escalar o serviço, gerando longas filas de 
-espera para os consumidores. Além disso, o manuseio frequente durante a inspeção representa 
-um risco à carta em si, pois o contato repetido pode causar desgastes que reduzem diretamente
-a nota do item avaliado \cite{Nahar2025}. Num mercado onde pequenas diferenças de conservação representam 
-grandes variações de preço, essa inconsistência tem consequências financeiras diretas \cite{Nahar2025, Warren2026}.
+Os avaliadores inspecionam cada carta com lupas e iluminação controlada, o que torna a análise
+demorada e sujeita à subjetividade de cada profissional \cite{Nahar2025}. Isso limita a
+capacidade das empresas de escalar o serviço, gerando longas filas de espera para os 
+consumidores. Além disso, o manuseio frequente durante a inspeção representa um risco 
+à carta em si, pois o contato repetido pode causar desgastes que reduzem diretamente a
+nota do item avaliado \cite{Nahar2025}. Num mercado onde pequenas diferenças de
+conservação representam grandes variações de preço, essa inconsistência tem 
+consequências financeiras diretas \cite{Nahar2025, Warren2026}.
 
-Diante dessas limitações, a automação tecnológica tem sido investigada 
-como alternativa à inspeção manual. Na indústria de manufatura, 
-sistemas de visão computacional já são utilizados para automatizar 
-inspeções de qualidade, usando arquiteturas de \textit{Deep Learning} 
-e Redes Neurais Convolucionais (CNNs) para detectar defeitos em tempo 
-real \cite{Zheng2021}. No entanto, adaptar essas abordagens para cartas 
-colecionáveis apresenta desafios específicos. Variações de iluminação
-e reflexos em superfícies holográficas (\textit{foil}) podem obscurecer 
-defeitos críticos e comprometer a precisão dos modelos \cite{Warren2026}. 
-Além disso, o cálculo da centralização depende da detecção precisa das 
-bordas da carta, o que exige tratamento prévio de ruídos visuais para 
-garantir medições consistentes \cite{Warren2026, Tian2022}.
+Como consequência dessas limitações, a automação baseada em visão computacional tem sido investigada como alternativa
+à inspeção manual. Na indústria de manufatura, sistemas de visão computacional já 
+são utilizados para automatizar inspeções de qualidade, empregando arquiteturas de 
+\textit{Deep Learning} e Redes Neurais Convolucionais (CNNs) para detectar defeitos em tempo 
+real \cite{Zheng2021}. No entanto, adaptar essas abordagens para cartas colecionáveis
+apresenta desafios específicos. Variações de iluminação e reflexos em superfícies 
+holográficas (\textit{foil}) podem obscurecer defeitos críticos e comprometer a precisão
+dos modelos \cite{Warren2026}. Além disso, o cálculo da centralização depende
+da detecção precisa das bordas da carta, o que exige tratamento prévio de 
+ruídos visuais para garantir medições consistentes \cite{Warren2026, Tian2022}.
 
-Pesquisadores já investigaram o uso dessas técnicas no contexto 
-específico da graduação de cartas colecionáveis \cite{Warren2026, Nahar2025}, 
-mas as abordagens existentes apresentam escopo limitado ou carecem de 
-validação sistemática que compare diferentes arquiteturas nesse domínio. 
-Diante disso, este trabalho propõe um sistema de pré-avaliação automatizada.
-A arquitetura combina o OpenCV para o cálculo da centralização \cite{Warren2026} 
-com o modelo de detecção de objetos YOLOv8 para localizar e classificar 
-danos de superfície \cite{Hussain2023, YUE2025}. O objetivo não é substituir 
-o avaliador humano, mas oferecer uma ferramenta que organize as informações 
-antes da inspeção final, reduzindo a subjetividade e o tempo gasto por carta.
+Outro desafio relevante está relacionado à disponibilidade de dados. 
+Em tarefas de detecção de objetos, especialmente em domínios especializados, 
+a obtenção de grandes volumes de dados anotados é limitada, uma vez que esses 
+modelos dependem fortemente de \textit{datasets} rotulados e a construção de bases de dados anotadas 
+em larga escala é custosa e trabalhosa \cite{Situ2023}. 
+Esse cenário contribui para problemas como \textit{overfitting} e baixa capacidade de 
+generalização dos modelos \cite{Paiano2024}, motivando o uso de estratégias como
+\textit{transfer learning}, aumento de dados (\textit{data augmentation}) e abordagens voltadas 
+ao aprendizado com poucos exemplos.
+
+Pesquisadores já investigaram o uso de técnicas de visão computacional para 
+detecção de defeitos no contexto de cartas colecionáveis \cite{Warren2026, Nahar2025}, 
+porém ainda há uma carência de estudos que avaliem sistematicamente o desempenho 
+de diferentes estratégias em cenários com baixo volume de dados nesse contexto 
+específico. Diante disso, este trabalho propõe uma análise comparativa de estratégias 
+de visão computacional aplicadas à detecção de defeitos em cartas TCG, conduzida sobre um
+\textit{dataset} composto por 88 cartas fornecido por uma empresa brasileira especializada em graduação.
+Para isso, será adotado um pipeline experimental baseado na arquitetura YOLO, 
+no qual diferentes estratégias de treinamento serão avaliadas por meio de um estudo de 
+ablação. A partir de um modelo base, serão conduzidos experimentos controlados nos quais 
+técnicas como \textit{transfer learning}, aumento de dados (\textit{data augmentation}) e métodos de 
+pré-processamento como fotometria serão progressivamente incorporadas, permitindo analisar o impacto 
+de cada estratégia no desempenho do modelo. A avaliação será realizada por meio de 
+métricas quantitativas, com o objetivo de identificar as abordagens mais eficazes 
+em cenários com dados limitados.
 % ---------------------------------------------------------------
 \section{Contexto}
 \label{sec:contexto}
 
-O ecossistema brasileiro de cartas colecionáveis tem demonstrado 
-sinais claros de aquecimento, impulsionado principalmente pela 
-alta rotatividade no mercado secundário. Como indicador dessa tendência, 
-plataformas de revenda entre consumidores registraram aumentos expressivos
-no volume de transações; levantamentos recentes apontam um crescimento de
-130\% nas negociações de cartas da franquia Pokémon em plataformas como 
-a OLX apenas no ano de 2025 \cite{IGN2025}. Esse volume intenso de 
-vendas de cartas reforça a demanda por serviços de 
-autenticação e graduação de estado de conservação no país. Nesse cenário, empresas 
-especializadas em graduação de cartas têm surgido no Brasil para 
-atender à demanda por avaliações padronizadas, como a Capy Games, 
-graduadora brasileira que oferece serviços de avaliação de estado 
-de conservação de cartas TCG \cite{CapyGames2026}.
-
-O processo de graduação realizado por essas empresas é conduzido 
-manualmente, com avaliadores inspecionando cada carta de forma 
-individual. Esse modelo apresenta um gargalo operacional claro: 
-a capacidade de processamento é limitada pelo tempo e pela 
-disponibilidade de avaliadores humanos. A própria Capy Games, 
-por exemplo, exibe seu serviço principal de graduação como 
-indisponível em razão de alta demanda, com previsão de retorno 
-de envios em breve \cite{CapyGames2026}. Esse cenário ilustra 
-diretamente o problema que este trabalho pretende endereçar: 
-a dificuldade de escalar o processo de graduação sem comprometer 
-a qualidade das avaliações.
-
-Além do volume, o processo manual introduz variabilidade nos 
-resultados. A análise visual de atributos como centralização, 
-estado de bordas e cantos depende da percepção subjetiva de 
-cada avaliador, o que pode gerar inconsistências entre avaliações 
-de uma mesma carta realizadas por profissionais diferentes 
-\cite{Nahar2025, Warren2026}. Em um mercado onde frações de 
-nota representam diferenças significativas de valor financeiro, 
-essa variabilidade é um problema real para compradores, 
-vendedores e para a credibilidade das próprias graduadoras.
+No processo de graduação de cartas colecionáveis, a avaliação do estado 
+físico é baseada na análise detalhada de atributos visuais como superfície (\textit{surface}), bordas
+(\textit{edges}), cantos (\textit{corners}) e centralização (\textit{centering}) \cite{Nahar2025}. Esses atributos estão diretamente 
+relacionados à presença de defeitos, que podem incluir riscos superficiais, 
+desgastes nas bordas (\textit{whitening}), pequenas dobras, marcas de pressão e 
+irregularidades de impressão \cite{Nahar2025, Warren2026}. Tais 
+imperfeições frequentemente apresentam baixa visibilidade, podendo 
+ocorrer em regiões específicas da carta e com variações sutis de 
+textura e cor \cite{Warren2026}.
+Do ponto de vista computacional, a detecção desses defeitos apresenta 
+desafios relevantes. Muitos defeitos possuem dimensões reduzidas e baixo 
+contraste em relação ao fundo, dificultando sua identificação por modelos 
+de visão computacional. Além disso, superfícies holográficas (\textit{foil}), 
+comuns em cartas de maior valor, introduzem reflexos e variações de iluminação 
+que podem mascarar imperfeições ou gerar ruídos visuais, comprometendo a 
+extração de características relevantes \cite{Warren2026}. A própria análise 
+da centralização exige a detecção precisa das bordas da carta, o que depende 
+de técnicas robustas de segmentação e pré-processamento de imagem 
+\cite{Warren2026, Tian2022}.
+Em tarefas de visão computacional aplicadas à inspeção visual, abordagens 
+baseadas em aprendizado profundo, como redes neurais convolucionais (CNNs) 
+e modelos de detecção de objetos, têm sido amplamente utilizadas para 
+identificar defeitos em diferentes domínios \cite{Zheng2021}. No entanto, 
+essas abordagens geralmente dependem de grandes volumes de dados anotados 
+para alcançar bom desempenho \cite{Situ2023}. No contexto de cartas 
+colecionáveis, a construção de \textit{datasets} extensos é limitada, 
+uma vez que a anotação de defeitos exige conhecimento especializado e 
+condições controladas de captura de imagem \cite{Nahar2025}.
+Esse cenário caracteriza um problema típico de aprendizado com poucos dados, 
+no qual modelos tendem a sofrer com \textit{overfitting} e baixa capacidade 
+de generalização \cite{Paiano2024}. Como consequência, torna-se necessário 
+o uso de estratégias específicas, como \textit{transfer learning}, aumento 
+de dados (\textit{data augmentation}) e técnicas de pré-processamento, que 
+buscam melhorar o desempenho dos modelos mesmo com conjuntos reduzidos de 
+treinamento. Compreender o impacto relativo dessas estratégias nesse domínio 
+específico esse cenário motiva a investigação de estratégias específicas para esse domínio.
 
 % ---------------------------------------------------------------
 \section{Justificativa}
 \label{sec:justificativa}
 
-Este trabalho se justifica pela necessidade de desenvolver uma 
-ferramenta computacional que reduza os dois principais problemas 
-identificados no processo atual de graduação de cartas TCG: 
-o tempo de avaliação e a subjetividade do resultado.
+A anotação especializada de defeitos em cartas colecionáveis é um processo 
+custoso e dependente de conhecimento técnico específico, o que limita 
+significativamente a construção de bases de dados em larga escala 
+\cite{Nahar2025, Situ2023}. Esse cenário torna a investigação de estratégias 
+eficazes para cenários com poucos dados não apenas relevante, mas necessária 
+para viabilizar soluções automatizadas nesse domínio.
 
-Do ponto de vista técnico, a proposta é viável porque algoritmos 
-de visão computacional já demonstraram capacidade de detectar 
-defeitos superficiais em produtos industriais com alta precisão 
-\cite{Zheng2021}. A adaptação dessas técnicas para o domínio 
-específico das cartas colecionáveis representa uma contribuição 
-original, dado que os desafios visuais desse domínio, como reflexos 
-holográficos e bordas de poucos milímetros, ainda carecem de 
-soluções consolidadas \cite{Warren2026}.
+No âmbito científico, os estudos existentes sobre automação da graduação 
+de cartas TCG apresentam contribuições relevantes, mas com escopo limitado. 
+\citeonline{Nahar2025} propõem um modelo baseado em \textit{transfer learning} 
+para graduação de cantos, alcançando 83\% de acurácia, porém sobre um 
+conjunto de 593 cartas e restrito a um único atributo de avaliação. 
+\citeonline{Warren2026} desenvolvem um pipeline híbrido com YOLOv8 para 
+detecção localizada de defeitos, construído sobre um \textit{dataset} de mais de 
+43.000 amostras obtidas com plataforma robótica proprietária. Nenhum dos 
+dois trabalhos avalia sistematicamente o impacto relativo de diferentes 
+estratégias de treinamento em cenários com conjuntos reduzidos de dados 
+reais, lacuna que este trabalho se propõe a investigar com base em 
+um conjunto real de 88 cartas fornecido por uma empresa brasileira 
+especializada em graduação.
 
-Do ponto de vista prático, a ferramenta proposta não substitui 
-o avaliador humano, mas atua como um sistema de pré-avaliação 
-que organiza e quantifica as informações antes da inspeção final. 
-Isso tem potencial de reduzir o tempo médio por carta e aumentar 
-a consistência entre avaliações, beneficiando diretamente empresas 
-como a Capy Games que enfrentam filas de espera por limitações 
-de capacidade operacional \cite{CapyGames2026}. A abordagem 
-experimental adotada, testando e comparando diferentes algoritmos 
-por meio de métricas quantitativas, permite validar qual arquitetura 
-oferece a melhor relação entre precisão e velocidade de inferência, 
-produzindo resultados reproduzíveis e auditáveis \cite{Nahar2025}.
-
+Na prática, os resultados desta investigação podem fornecer orientações 
+concretas para empresas do setor que operam com volumes limitados de dados 
+anotados, indicando quais combinações de técnicas como \textit{transfer 
+learning}, \textit{data augmentation} e pré-processamento fotométrico 
+produzem ganhos reais de desempenho nessa configuração específica 
+\cite{Paiano2024, Situ2023}, sem depender de infraestrutura de coleta 
+de dados em larga escala.
 % ---------------------------------------------------------------
 \section{Objetivos}
 \label{sec:objetivos}
 
 \subsection{Objetivo Geral}
 
-Avaliar o desempenho de algoritmos de visão computacional no suporte à graduação de cartas Pokémon TCG, com foco na redução do tempo de inspeção.
+Avaliar o desempenho de estratégias de treinamento em modelos
+de visão computacional aplicados à detecção de defeitos em 
+cartas Pokémon TCG em cenários com baixo volume de dados.
 
 \subsection{Objetivos Específicos}
 
 \begin{enumerate}
-    \item Pré-processar e estruturar um \textit{dataset} de imagens de cartas Pokémon, aplicando técnicas para padronização de iluminação e mitigação de reflexos especulares (holográficos).
-    \item Implementar algoritmos de visão computacional de diferentes categorias para o cálculo de centralização e modelos de \textit{Deep Learning} para detecção de arranhões e desgastes.
-    \item Comparar o desempenho das abordagens implementadas através de métricas estatísticas e de custo computacional.
-    \item Propor uma interface de suporte à decisão que integre as detecções dos algoritmos e recomende uma pré-nota, visando agilizar o veredito final do avaliador humano.
+    \item Organizar e preparar um conjunto de dados de imagens de cartas Pokémon TCG, 
+    garantindo consistência nas anotações e nas condições de captura.
+    
+    \item Implementar modelos de detecção de objetos baseados na arquitetura YOLO para 
+    identificação de defeitos visuais nas cartas.
+    
+    \item Aplicar estratégias de treinamento voltadas a cenários com poucos dados, 
+    incluindo \textit{transfer learning}, aumento de dados (\textit{data augmentation})
+    e técnicas de pré-processamento de imagem.
+    
+    \item Conduzir um estudo de ablação para analisar o impacto individual de cada estratégia
+    de treinamento no desempenho dos modelos.
+    
+    \item Comparar o desempenho das diferentes configurações por meio de métricas quantitativas,
+    como precisão, \textit{recall}, F1-score e \textit{mean Average Precision} (mAP).
+    
+    \item Analisar os resultados obtidos, identificando quais combinações de estratégias e modelos 
+    apresentam melhor desempenho em cenários com conjuntos de dados limitados.
 \end{enumerate}
-
-% ---------------------------------------------------------------
-\section{Metodologia Escolhida}
-\label{sec:metodologia}
-
-A metodologia adotada é a \textit{Design Science Research} (DSR) para a construção do artefato computacional, com avaliação conduzida por meio de pesquisa experimental quantitativa aplicada. Essa abordagem permitirá medir e comparar o desempenho empírico (tempo de inferência e acurácia) entre os diferentes algoritmos propostos.
-
-% ---------------------------------------------------------------
-\section{Hipótese de Pesquisa}
-\label{sec:hipotese}
-
-O uso do sistema de suporte à decisão reduz o tempo médio de inspeção por carta em pelo menos 40\% em comparação à avaliação manual sem suporte, mantendo desempenho de detecção de defeitos com \textit{F1-score} ou \textit{mAP} $\geq 0{,}90$.
-
-% ---------------------------------------------------------------
-\section{Métricas de Avaliação}
-\label{sec:metricas}
-
-As métricas utilizadas para avaliar o desempenho e a viabilidade da solução proposta serão:
-\begin{itemize}
-    \item \textbf{Erro de centralização}: MAE (erro absoluto médio) das margens estimadas vs referência (em pixels ou \%), e \% de casos dentro de um limiar de tolerância.
-    \item \textbf{Precisão (\textit{Precision}) e Revocação (\textit{Recall}):} Para medir a exatidão e a sensibilidade na detecção de danos.
-    \item \textbf{F1-Score / mAP (\textit{Mean Average Precision}):} Para comparar o saldo geral de acertos entre os algoritmos testados.
-    \item \textbf{Tempo de Inferência:} Medido em milissegundos (ms), para avaliar o custo computacional de cada modelo.
-    \item \textbf{Redução Percentual de Tempo:} Comparação do tempo médio gasto por um humano avaliando uma carta do zero \textit{versus} avaliando a carta com o suporte prévio do sistema.
-\end{itemize}
 
 % ===============================================================
 % CAPÍTULO 2 - REVISÃO BIBLIOGRÁFICA
@@ -440,8 +465,8 @@ substituir câmeras convencionais por scanners de alta resolução,
 garantindo iluminação constante e padronizada durante a captura.
 
 O terceiro desafio é a subjetividade inerente ao processo de 
-avaliação manual. Como os quatro critérios de graduação — superfície, 
-bordas, cantos e centralização — são analisados visualmente por 
+avaliação manual. Como os quatro critérios de graduação, superfície, 
+bordas, cantos e centralização, são analisados visualmente por 
 avaliadores humanos, o resultado final tende a variar entre 
 profissionais diferentes, especialmente em casos limítrofes 
 \cite{Nahar2025}. Esse fator limita a reprodutibilidade das 
@@ -457,26 +482,29 @@ precisão exige algoritmos dedicados de detecção de bordas e
 tratamento prévio de ruídos visuais para garantir medições 
 consistentes \cite{Warren2026, Tian2022}.
 
-
-
-
-
 % ---------------------------------------------------------------
 \section{Metodologia da pesquisa bibliográfica}
 \label{sec:metodologia_pesquisa}
 
-Descreva como a pesquisa bibliográfica foi conduzida, incluindo:
+A pesquisa bibliográfica foi realizada na base Google Scholar, 
+utilizando combinações de termos em inglês diretamente relacionados 
+aos temas centrais do trabalho. As principais expressões de busca 
+utilizadas foram: \textit{``transfer learning'' AND ``object 
+detection'' AND ``small dataset'' AND ``performance evaluation''}, 
+\textit{``trading card'' OR ``collectible card'' AND ``computer 
+vision''}, \textit{``card grading'' AND ``automated'' OR ``machine 
+learning''}, \textit{``surface defect detection'' AND ``computer 
+vision'' AND ``scratch'' OR ``wear''} e \textit{``subpixel edge 
+detection'' AND ``measurement precision'' AND ``computer vision''}.
 
-\begin{itemize}
-    \item \textbf{Bases de dados consultadas}: Google Scholar, IEEE Xplore, ACM Digital Library, SciELO, Periódicos CAPES, entre outras;
-    \item \textbf{Palavras-chave utilizadas}: liste os termos de busca em português e inglês;
-    \item \textbf{Critérios de inclusão e exclusão}: quais critérios foram usados para selecionar ou descartar trabalhos (período, idioma, relevância, tipo de publicação);
-    \item \textbf{Período de abrangência}: intervalo de anos das publicações consultadas.
-\end{itemize}
-
-Exemplo de descrição:
-
-\textit{A pesquisa bibliográfica foi realizada nas bases Google Scholar, IEEE Xplore e ACM Digital Library, utilizando as palavras-chave ``machine learning'', ``classificação de texto'' e ``processamento de linguagem natural''. Foram selecionados artigos publicados entre 2018 e 2025, em português e inglês, que abordassem diretamente técnicas de classificação automática de documentos.}
+Foram considerados apenas artigos científicos publicados entre 2021 
+e 2026, em língua inglesa, disponíveis em periódicos ou anais de 
+conferências revisados por pares. Materiais como blogs, relatórios 
+técnicos não revisados e trabalhos de conclusão de curso foram 
+excluídos. A relevância de cada trabalho foi avaliada com base na 
+aderência ao problema de pesquisa: detecção automatizada de defeitos 
+visuais em cenários com baixo volume de dados, com ênfase em 
+aplicações de visão computacional em domínios especializados.
 
 % ---------------------------------------------------------------
 \section{Fundamentos}
