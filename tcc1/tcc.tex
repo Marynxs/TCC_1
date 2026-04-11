@@ -131,14 +131,14 @@ de graduação de cartas, atualmente realizado de forma manual e sujeito à subj
 A revisão bibliográfica abrange visão computacional, inspeção visual automatizada, Deep
 Learning, \textit{transfer learning} e técnicas para treinamento com conjuntos limitados de imagens 
 anotadas. Como solução proposta, pretende-se implementar um pipeline de treinamento e avaliação utilizando
-a arquitetura YOLO, combinada com técnicas de fotometria e aumento de dados (\textit{data augmentation}),
+o modelo YOLOv8, combinada com técnicas de fotometria e aumento de dados (\textit{data augmentation}),
 comparando o impacto de diferentes estratégias de treinamento por meio de métricas quantitativas 
 em um \textit{dataset} real de 88 cartas fornecido por uma empresa brasileira especializada em graduação de cartas TCG.
 
 \vspace{\onelineskip}
 
 \noindent
-\textbf{Palavras-chave}: Visão Computacional. Detecção de Defeitos. Pokémon TCG. Small Datasets. YOLO.
+\textbf{Palavras-chave}: Visão Computacional. Detecção de Defeitos. Pokémon TCG. Small Datasets. YOLOv8.
 \end{resumo}
 
 % ---------------------------------------------------------------
@@ -177,95 +177,104 @@ O mercado de Trading Card Games (TCG), representado por franquias
 como Pokémon e Magic: The Gathering, deve movimentar aproximadamente 
 20 bilhões de dólares globalmente em 2026, com projeção de ultrapassar 
 76 bilhões até 2035 \cite{BRI2026}. Nesse mercado, o valor de uma carta 
-está diretamente ligado ao seu estado de conservação \cite{Nahar2025}.
-Para certificar essa condição e garantir a segurança das transações, consolidou-se
-o serviço especializado de graduação de cartas (\textit{grading}). A PSA, fundada em 1991,
-foi a pioneira em padronizar essa avaliação ao estabelecer uma escala de 10 pontos 
-que se tornaria norma do setor, enquanto a Beckett, em 1999, introduziu 
-subnotas para atributos individuais \cite{Shen2025}. Essa metodologia 
-baseia-se na inspeção de quatro atributos físicos: superfície (\textit{surface}), bordas
-(\textit{edges}), cantos (\textit{corners}) e centralização (\textit{centering}), sendo a nota final definida 
-pela análise combinada desses fatores \cite{Nahar2025}.
+está diretamente ligado ao seu estado de conservação. Para certificar 
+essa condição e garantir a segurança das transações, consolidou-se o 
+serviço especializado de graduação de cartas (\textit{grading}) \cite{Nahar2025}. 
+A PSA, fundada em 1991, foi a pioneira em padronizar essa avaliação ao 
+estabelecer uma escala de 10 pontos que se tornaria norma do setor, 
+enquanto a Beckett, em 1999, introduziu subnotas para atributos 
+individuais \cite{Shen2025}. Essa metodologia baseia-se na inspeção 
+de quatro atributos físicos: superfície (\textit{surface}), bordas 
+(\textit{edges}), cantos (\textit{corners}) e centralização 
+(\textit{centering}), sendo a nota final definida pela análise 
+combinada desses fatores \cite{Nahar2025}.
 
-O processo de graduação, no entanto, ainda é realizado de forma predominantemente manual.
-Os avaliadores inspecionam cada carta com lupas e iluminação controlada, o que torna a análise
-demorada e sujeita à subjetividade de cada profissional \cite{Nahar2025}. Isso limita a
-capacidade das empresas de escalar o serviço, gerando longas filas de espera para os 
-consumidores. Além disso, o manuseio frequente durante a inspeção representa um risco 
-à carta em si, pois o contato repetido pode causar desgastes que reduzem diretamente a
-nota do item avaliado \cite{Nahar2025}. Num mercado onde pequenas diferenças de
-conservação representam grandes variações de preço, essa inconsistência tem 
-consequências financeiras diretas \cite{Nahar2025, Warren2026}.
+O processo de graduação, no entanto, ainda é realizado de forma 
+predominantemente manual. Os avaliadores inspecionam cada carta com 
+lupas e iluminação controlada, o que torna a análise demorada, sujeita 
+à subjetividade de cada profissional e limitada em termos de escalabilidade. 
+Além disso, o manuseio frequente durante a inspeção representa um risco 
+à própria carta, pois o contato repetido pode causar desgastes que 
+reduzem a nota do item avaliado. Em um mercado no qual pequenas 
+diferenças de conservação representam grandes variações de preço, 
+essa inconsistência tem consequências financeiras diretas 
+\cite{Nahar2025, Warren2026}.
 
-Como resposta a esses desafios, a automação baseada em visão computacional tem sido investigada como alternativa
-à inspeção manual. Na indústria de manufatura, sistemas de visão computacional já 
-são utilizados para automatizar inspeções de qualidade, empregando arquiteturas de 
-\textit{Deep Learning} e Redes Neurais Convolucionais (CNNs) para detectar defeitos em tempo 
-real \cite{Zheng2021}. No entanto, a adaptação dessas abordagens ao contexto de cartas colecionáveis
-apresenta desafios específicos. Variações de iluminação e reflexos em superfícies 
-holográficas (\textit{foil}) podem obscurecer defeitos críticos e comprometer a precisão
-dos modelos \cite{Warren2026}. Além disso, defeitos como riscos superficiais, desgastes nas bordas 
-(\textit{whitening}), pequenas dobras e marcas de pressão podem ocupar regiões muito pequenas da carta 
-e, em muitos casos, apresentar contraste sutil em relação ao fundo, o que dificulta sua identificação 
-automática \cite{Nahar2025, Warren2026}.
+Como resposta a esses desafios, a automação baseada em visão 
+computacional tem sido investigada como alternativa à inspeção manual. 
+Na indústria de manufatura, sistemas de visão computacional já são 
+utilizados para automatizar inspeções de qualidade, empregando 
+arquiteturas de \textit{Deep Learning} e Redes Neurais Convolucionais 
+(CNNs) para detectar defeitos em tempo real \cite{Zheng2021}. No entanto, 
+a adaptação dessas abordagens ao contexto de cartas colecionáveis 
+apresenta dificuldades específicas, como variações de iluminação, 
+reflexos em superfícies holográficas (\textit{foil}) e a presença de 
+defeitos pequenos e sutis, como riscos superficiais, desgastes nas 
+bordas, pequenas dobras e marcas de pressão, que podem apresentar baixo 
+contraste em relação ao fundo \cite{Nahar2025, Warren2026}.
 
 Outro desafio relevante está relacionado à disponibilidade de dados. 
-Em tarefas de detecção de objetos, especialmente em domínios especializados, 
-a obtenção de grandes volumes de dados anotados é limitada, uma vez que esses 
-modelos dependem fortemente de \textit{datasets} rotulados e a construção de bases de dados anotadas 
-em larga escala é custosa e trabalhosa \cite{Situ2023}. 
-Esse cenário contribui para problemas como \textit{overfitting} e baixa capacidade de 
-generalização dos modelos \cite{Paiano2024}, motivando o uso de estratégias como
-\textit{transfer learning}, aumento de dados (\textit{data augmentation}) e abordagens voltadas 
-ao aprendizado com poucos exemplos.
+Em tarefas de detecção de objetos, especialmente em domínios 
+especializados, a obtenção de grandes volumes de dados anotados é 
+limitada, uma vez que esses modelos dependem fortemente de 
+\textit{datasets} rotulados e a construção de bases de dados anotadas 
+em larga escala é custosa e trabalhosa \cite{Situ2023}. Esse cenário 
+contribui para problemas como \textit{overfitting} e baixa capacidade 
+de generalização dos modelos \cite{Paiano2024}, motivando o uso de 
+estratégias como \textit{transfer learning}, aumento de dados 
+(\textit{data augmentation}) e abordagens voltadas ao aprendizado com 
+poucos exemplos.
 
-Pesquisadores já investigaram o uso de técnicas de visão computacional para 
-detecção de defeitos no contexto de cartas colecionáveis \cite{Warren2026, Nahar2025}, 
-porém ainda há uma carência de estudos que avaliem sistematicamente o desempenho 
-de diferentes estratégias em cenários com baixo volume de dados nesse contexto 
-específico. Diante disso, este trabalho propõe uma análise comparativa de estratégias 
-de visão computacional aplicadas à detecção de defeitos em cartas TCG, conduzida sobre um
-\textit{dataset} composto por 88 cartas fornecido por uma empresa brasileira especializada em graduação.
-Para isso, será adotado um pipeline experimental baseado na arquitetura YOLO, 
-no qual diferentes estratégias de treinamento serão avaliadas por meio de um estudo de 
-ablação. A partir de um modelo base, serão conduzidos experimentos controlados nos quais 
-técnicas como \textit{transfer learning}, aumento de dados (\textit{data augmentation}) e métodos de 
-pré-processamento como fotometria serão progressivamente incorporadas, permitindo analisar o impacto 
-de cada estratégia no desempenho do modelo. A avaliação será realizada por meio de 
-métricas quantitativas, com o objetivo de identificar as abordagens mais eficazes 
-em cenários com dados limitados.
+Pesquisadores já investigaram o uso de técnicas de visão computacional 
+para detecção de defeitos no contexto de cartas colecionáveis 
+\cite{Warren2026, Nahar2025}, porém ainda há uma carência de estudos 
+que avaliem sistematicamente o desempenho de diferentes estratégias em 
+cenários com baixo volume de dados nesse contexto específico. Diante 
+disso, este trabalho propõe uma análise comparativa de estratégias de 
+visão computacional aplicadas à detecção de defeitos em cartas TCG, 
+conduzida sobre um \textit{dataset} composto por 88 cartas fornecido por 
+uma empresa brasileira especializada em graduação. Para isso, será 
+adotado um pipeline experimental baseado no modelo YOLOv8, no qual 
+diferentes estratégias de treinamento serão avaliadas por meio de um 
+estudo de ablação. A partir de um modelo base, serão conduzidos 
+experimentos controlados nos quais técnicas como \textit{transfer learning}, 
+aumento de dados (\textit{data augmentation}) e métodos de 
+pré-processamento, como fotometria, serão progressivamente incorporados, 
+permitindo analisar o impacto de cada estratégia no desempenho do modelo. 
+A avaliação será realizada por meio de métricas quantitativas, com o 
+objetivo de identificar as abordagens mais eficazes em cenários com 
+dados limitados.
 % ---------------------------------------------------------------
 \section{Contexto}
 \label{sec:contexto}
 
 No processo de graduação de cartas colecionáveis, a avaliação do estado 
-físico é baseada na análise detalhada de atributos visuais como superfície (\textit{surface}), bordas
-(\textit{edges}), cantos (\textit{corners}) e centralização (\textit{centering}) \cite{Nahar2025}. Esses atributos estão diretamente 
-relacionados à presença de defeitos, que podem incluir riscos superficiais, 
-desgastes nas bordas (\textit{whitening}), pequenas dobras, marcas de pressão e 
-irregularidades de impressão \cite{Nahar2025, Warren2026}. Tais 
-imperfeições frequentemente apresentam baixa visibilidade, podendo 
-ocorrer em regiões específicas da carta e com variações sutis de 
-textura e cor \cite{Warren2026}.
+físico é baseada na análise de atributos visuais da carta, como superfície, 
+bordas e cantos. Esses atributos estão diretamente relacionados à presença 
+de defeitos, que podem incluir riscos superficiais, desgastes nas bordas 
+(\textit{whitening}), pequenas dobras, marcas de pressão e irregularidades 
+de impressão \cite{Nahar2025, Warren2026}. Tais imperfeições frequentemente 
+apresentam baixa visibilidade, podendo ocorrer em regiões específicas da 
+carta e com variações sutis de textura e cor.
+
 Do ponto de vista computacional, a detecção desses defeitos apresenta 
-desafios relevantes. Muitos defeitos possuem dimensões reduzidas e baixo 
+desafios relevantes. Muitos deles possuem dimensões reduzidas e baixo 
 contraste em relação ao fundo, dificultando sua identificação por modelos 
 de visão computacional. Além disso, superfícies holográficas (\textit{foil}), 
 comuns em cartas de maior valor, introduzem reflexos e variações de iluminação 
 que podem mascarar imperfeições ou gerar ruídos visuais, comprometendo a 
-extração de características relevantes \cite{Warren2026}. A própria análise 
-da centralização exige a detecção precisa das bordas da carta, o que depende 
-de técnicas robustas de segmentação e pré-processamento de imagem 
-\cite{Warren2026, Tian2022}.
+extração de características relevantes \cite{Warren2026}.
+
 Em tarefas de visão computacional aplicadas à inspeção visual, abordagens 
 baseadas em aprendizado profundo, como redes neurais convolucionais (CNNs) 
 e modelos de detecção de objetos, têm sido amplamente utilizadas para 
 identificar defeitos em diferentes domínios \cite{Zheng2021}. No entanto, 
 essas abordagens geralmente dependem de grandes volumes de dados anotados 
-para alcançar bom desempenho \cite{Situ2023}. No contexto de cartas 
-colecionáveis, a construção de \textit{datasets} extensos é limitada, 
-uma vez que a anotação de defeitos exige conhecimento especializado e 
-condições controladas de captura de imagem \cite{Nahar2025}.
+para alcançar bom desempenho. No contexto de cartas colecionáveis, a 
+construção de \textit{datasets} extensos é limitada, uma vez que a anotação 
+de defeitos exige conhecimento especializado e condições controladas de 
+captura de imagem \cite{Situ2023, Nahar2025}.
+
 Esse cenário caracteriza um problema típico de aprendizado com poucos dados, 
 no qual modelos tendem a sofrer com \textit{overfitting} e baixa capacidade 
 de generalização \cite{Paiano2024}. Como consequência, torna-se necessário 
@@ -311,7 +320,7 @@ favorecem a detecção automática de defeitos como apoio à inspeção visual \
 
 \subsection{Objetivo Geral}
 
-Avaliar o desempenho de estratégias de treinamento em modelos
+Avaliar o desempenho de estratégias de treinamento em um modelo
 de visão computacional aplicados à detecção de defeitos em 
 cartas Pokémon TCG em cenários com baixo volume de dados.
 
@@ -321,7 +330,7 @@ cartas Pokémon TCG em cenários com baixo volume de dados.
     \item Organizar e preparar um conjunto de dados de imagens de cartas Pokémon TCG, 
     garantindo consistência nas anotações e nas condições de captura.
     
-    \item Implementar modelos de detecção de objetos baseados na arquitetura YOLO para 
+    \item Implementar um modelo de detecção de objetos baseados na arquitetura YOLOv8 para 
     identificação de defeitos visuais nas cartas.
     
     \item Aplicar estratégias de treinamento voltadas a cenários com poucos dados, 
@@ -334,7 +343,7 @@ cartas Pokémon TCG em cenários com baixo volume de dados.
     \item Comparar o desempenho das diferentes configurações por meio de métricas quantitativas,
     como precisão, \textit{recall}, F1-score e \textit{mean Average Precision} (mAP).
     
-    \item Analisar os resultados obtidos, identificando quais combinações de estratégias e modelos 
+    \item Analisar os resultados obtidos, identificando quais combinações de estratégias 
     apresentam melhor desempenho em cenários com conjuntos de dados limitados.
 \end{enumerate}
 
@@ -350,77 +359,6 @@ A revisão bibliográfica tem como finalidade apresentar o embasamento teórico 
 \section{Referencial teórico}
 \label{sec:referencial}
 
-\subsection{Trading Card Games e o Mercado de Colecionismo}
-\label{subsec:tcg}
-
-Trading Card Games (TCGs) são jogos baseados em cartas colecionáveis, 
-associados a franquias de entretenimento como Pokémon e Magic: The Gathering 
-\cite{Nahar2025}. Diferentemente de jogos de cartas tradicionais, cada carta 
-em um TCG pode apresentar atributos próprios de arte, raridade e uso em jogo, 
-o que lhe confere também valor de colecionismo individual. No caso do Pokémon 
-TCG, essa combinação entre jogabilidade estratégica e cultura de colecionismo 
-também se reflete na existência de um mercado secundário ativo para a compra 
-e venda de cartas individuais \cite{Shen2025}.
-
-Nesse mercado, o valor comercial de uma carta está fortemente associado ao seu 
-estado de conservação físico. Imperfeições como arranhões na superfície, 
-desgaste nas bordas ou problemas de centralização podem reduzir de forma 
-significativa o preço de mercado do item \cite{Nahar2025}. Para padronizar essa 
-avaliação e aumentar a confiabilidade das transações, consolidou-se a atuação 
-de empresas especializadas em graduação de cartas (\textit{card grading}), como 
-a PSA (\textit{Professional Sports Authenticator}) e a Beckett Grading Services 
-\cite{Shen2025}.
-
-A PSA, fundada em 1991, teve papel pioneiro na padronização desse tipo de 
-avaliação ao adotar uma escala de 10 pontos amplamente utilizada no setor, 
-enquanto a Beckett, a partir de 1999, introduziu subnotas para atributos 
-individuais da carta, ampliando o detalhamento do processo de graduação 
-\cite{Shen2025}. Esse modelo de avaliação padronizada tornou-se central no 
-mercado secundário de cartas, pois permite autenticar, encapsular e classificar 
-itens de forma mais confiável para compradores e vendedores \cite{Heck2026}.
-
-O processo de graduação considera, em geral, quatro atributos físicos da carta: 
-superfície (\textit{surface}), bordas (\textit{edges}), cantos 
-(\textit{corners}) e centralização (\textit{centering}). A nota final, em uma 
-escala de 1 a 10, resulta da análise combinada desses fatores \cite{Nahar2025}. 
-Cartas classificadas com notas mais altas, como \textit{Gem Mint}, tendem a 
-alcançar valores substancialmente superiores aos de exemplares com notas mais 
-baixas, em razão da maior preservação de suas características físicas 
-\cite{Warren2026,Heck2026}.
-
-\subsection{Visão Computacional e Inspeção Visual Automatizada}
-\label{subsec:avi}
-
-Visão computacional é a área da ciência da computação que desenvolve 
-métodos para que sistemas digitais interpretem e analisem imagens e 
-vídeos automaticamente. Na indústria de manufatura, essa tecnologia 
-é aplicada em sistemas de inspeção visual automatizada 
-(\textit{Automated Visual Inspection} -- AVI), cuja função é 
-substituir ou apoiar a inspeção manual de qualidade em linhas de 
-produção \cite{Zheng2021}.
-
-Um sistema AVI é composto por três etapas principais: aquisição de 
-imagem, detecção de defeitos e controle de qualidade. A etapa de 
-aquisição utiliza câmeras digitais, combinadas com sistemas de iluminação controlada para garantir 
-contraste adequado entre as características do produto e possíveis 
-defeitos. A etapa de detecção aplica algoritmos de processamento de 
-imagem para identificar e classificar anomalias. Por fim, os 
-resultados são enviados ao sistema de controle de qualidade, que 
-determina a aceitação ou rejeição do produto \cite{Zheng2021}.
-
-Os algoritmos tradicionais de AVI dependem de características 
-projetadas manualmente por especialistas e tendem a ser sensíveis 
-a variações nas condições de aplicação \cite{Zheng2021}. Com o 
-avanço do \textit{Deep Learning}, uma nova geração de algoritmos passou a aprender padrões
-diretamente dos dados de treinamento. Redes Neurais Convolucionais (CNNs) tornaram-se a
-abordagem predominante nesse contexto \cite{Zheng2021}. 
-
-Na prática industrial, sistemas baseados em CNNs têm sido aplicados 
-com sucesso na inspeção de defeitos em semicondutores, aço e tecidos, 
-atingindo taxas de acurácia superiores a 99\% em alguns casos 
-\cite{Zheng2021}, consolidando o \textit{Deep Learning} como 
-abordagem predominante para inspeção visual automatizada.
-
 \subsection{Deep Learning e Redes Neurais Convolucionais}
 \label{subsec:dl_cnn}
 
@@ -431,56 +369,126 @@ características projetadas manualmente \cite{Zheng2021}. No contexto
 de visão computacional, as Redes Neurais Convolucionais (CNNs, do 
 inglês \textit{Convolutional Neural Networks}) são a arquitetura 
 predominante para tarefas de classificação de imagens, detecção de 
-objetos e inspeção de defeitos \cite{Hussain2023}. As CNNs utilizam múltiplas
-camadas convolucionais combinadas com estruturas de agrupamento (\textit{pooling}) 
-para extrair padrões visuais diretamente dos pixels da imagem \cite{Hussain2023}.
+objetos e inspeção de defeitos \cite{Hussain2023}. As CNNs utilizam 
+múltiplas camadas convolucionais combinadas com estruturas de agrupamento 
+(\textit{pooling}) para extrair padrões visuais diretamente dos pixels 
+da imagem \cite{Hussain2023}.
 
 Na inspeção visual automatizada de produtos industriais, CNNs têm 
-demonstrado resultados superiores aos métodos tradicionais na 
-detecção de defeitos em superfícies \cite{Zheng2021}. Esse desempenho 
-justifica sua adoção em contextos com desafios visuais similares, 
-incluindo a graduação de cartas colecionáveis \cite{Warren2026}.
+demonstrado resultados superiores aos métodos tradicionais na detecção 
+de defeitos em superfícies \cite{Zheng2021}. Esse desempenho explica 
+sua ampla adoção em tarefas de visão computacional que exigem 
+reconhecimento e localização de padrões visuais complexos.
+
+\subsection{Visão Computacional e Inspeção Visual Automatizada}
+\label{subsec:avi}
+
+A visão computacional é a área da ciência da computação que desenvolve 
+métodos para que sistemas digitais interpretem e analisem imagens e 
+vídeos automaticamente. Uma de suas aplicações mais relevantes na prática 
+industrial está nos sistemas de inspeção visual automatizada 
+(\textit{Automated Visual Inspection} -- AVI), cuja função é substituir 
+ou apoiar a inspeção manual de qualidade em linhas de produção 
+\cite{Zheng2021}.
+
+Um sistema AVI é composto, em geral, por três etapas principais: aquisição 
+de imagem, detecção de defeitos e controle de qualidade. A etapa de 
+aquisição utiliza câmeras digitais combinadas com sistemas de iluminação 
+controlada para garantir contraste adequado entre as características do 
+produto e possíveis defeitos. Em seguida, a etapa de detecção aplica 
+algoritmos de processamento de imagem para identificar e classificar 
+anomalias. Por fim, os resultados são enviados ao sistema de controle 
+de qualidade, que determina a aceitação ou rejeição do produto 
+\cite{Zheng2021}.
+
+Antes da consolidação do \textit{Deep Learning}, muitos sistemas AVI 
+dependiam de características projetadas manualmente por especialistas, 
+o que os tornava sensíveis a variações nas condições de aplicação 
+\cite{Zheng2021}. Com o avanço das CNNs, passaram a ser desenvolvidos 
+métodos capazes de aprender padrões diretamente a partir dos dados de 
+treinamento, superando parte das limitações dos métodos tradicionais. 
+Na prática industrial, sistemas baseados em CNNs têm sido aplicados com 
+sucesso na inspeção de defeitos em semicondutores, aço e tecidos, 
+atingindo taxas de acurácia superiores a 99\% em alguns casos 
+\cite{Zheng2021}.
+
+\subsection{Trading Card Games e o Mercado de Colecionismo}
+\label{subsec:tcg}
+
+Entre os domínios nos quais técnicas de visão computacional podem ser 
+aplicadas, destaca-se o mercado de cartas colecionáveis. Trading Card 
+Games (TCGs) são jogos baseados em cartas associadas a franquias de 
+entretenimento como Pokémon e Magic: The Gathering \cite{Nahar2025}. 
+Diferentemente de jogos de cartas tradicionais, cada carta em um TCG pode 
+apresentar atributos próprios de arte, raridade e uso em jogo, o que lhe 
+confere também valor de colecionismo individual. No caso do Pokémon TCG, 
+essa combinação entre jogabilidade estratégica e cultura de colecionismo 
+também se reflete na existência de um mercado secundário ativo para a 
+compra e venda de cartas individuais \cite{Shen2025}.
+
+Nesse mercado, o valor comercial de uma carta está fortemente associado 
+ao seu estado de conservação físico. Imperfeições como arranhões na 
+superfície, desgaste nas bordas ou problemas de centralização podem reduzir 
+de forma significativa o preço de mercado do item \cite{Nahar2025}. Para 
+padronizar essa avaliação e aumentar a confiabilidade das transações, 
+consolidou-se a atuação de empresas especializadas em graduação de cartas 
+(\textit{card grading}), como a PSA (\textit{Professional Sports 
+Authenticator}) e a Beckett Grading Services \cite{Shen2025}.
+
+A PSA, fundada em 1991, teve papel pioneiro na padronização desse tipo de 
+avaliação ao adotar uma escala de 10 pontos amplamente utilizada no setor, 
+enquanto a Beckett, a partir de 1999, introduziu subnotas para atributos 
+individuais da carta, ampliando o detalhamento do processo de graduação 
+\cite{Shen2025}. Esse modelo de avaliação padronizada tornou-se central no 
+mercado secundário de cartas, pois permite autenticar, encapsular e 
+classificar itens de forma mais confiável para compradores e vendedores 
+\cite{Heck2026}.
+
+O processo de graduação considera, em geral, quatro atributos físicos da 
+carta: superfície (\textit{surface}), bordas (\textit{edges}), cantos 
+(\textit{corners}) e centralização (\textit{centering}). A nota final, em 
+uma escala de 1 a 10, resulta da análise combinada desses fatores 
+\cite{Nahar2025}. Cartas classificadas com notas mais altas, como 
+\textit{Gem Mint}, tendem a alcançar valores substancialmente superiores 
+aos de exemplares com notas mais baixas, em razão da maior preservação de 
+suas características físicas \cite{Warren2026,Heck2026}.
 
 \subsection{Desafios Técnicos na Inspeção de Cartas}
 \label{subsec:desafios}
 
-A inspeção automatizada de cartas TCG apresenta desafios técnicos 
-que a diferenciam da inspeção industrial convencional. O primeiro 
-deles é a variação de iluminação durante a captura das imagens. 
-\citeonline{Warren2026} denominam esse fenômeno de \textit{Shadow 
-Problem}: inconsistências de brilho causadas pela geometria do 
-equipamento de captura, pelo ângulo da câmera e por reflexos 
-ambientais. Sem correção adequada, esses artefatos visuais degradam 
-a qualidade da imagem e podem levar a classificações incorretas pelos 
-modelos de graduação \cite{Warren2026}.
+Apesar do potencial de aplicação de técnicas de visão computacional nesse 
+domínio, a inspeção automatizada de cartas TCG apresenta desafios técnicos 
+que a diferenciam da inspeção industrial convencional. O primeiro deles é 
+a variação de iluminação durante a captura das imagens. \citeonline{Warren2026} 
+denominam esse fenômeno de \textit{Shadow Problem}: inconsistências de brilho 
+causadas pela geometria do equipamento de captura, pelo ângulo da câmera e 
+por reflexos ambientais. Sem correção adequada, esses artefatos visuais 
+degradam a qualidade da imagem e podem levar a classificações incorretas 
+pelos modelos de graduação.
 
-O segundo desafio são os reflexos em superfícies holográficas 
-(\textit{foil}). Cartas com impressão holográfica refletem luz de 
-forma intensa e irregular, o que pode obscurecer defeitos críticos 
-como arranhões e desgastes de superfície. Esse comportamento óptico 
-dificulta a segmentação da imagem e compromete a precisão de modelos 
-treinados em condições de iluminação uniforme \cite{Warren2026}. 
-Para mitigar esse problema, \citeonline{Nahar2025} optaram por 
-substituir câmeras convencionais por scanners de alta resolução, 
-garantindo iluminação constante e padronizada durante a captura.
+O segundo desafio são os reflexos em superfícies holográficas (\textit{foil}). 
+Cartas com impressão holográfica refletem luz de forma intensa e irregular, o 
+que pode obscurecer defeitos críticos como arranhões e desgastes de superfície. 
+Esse comportamento óptico dificulta a segmentação da imagem e compromete a 
+precisão de modelos treinados em condições de iluminação uniforme 
+\cite{Warren2026}. Para mitigar esse problema, \citeonline{Nahar2025} optaram 
+por substituir câmeras convencionais por scanners de alta resolução, garantindo 
+iluminação constante e padronizada durante a captura.
 
-O terceiro desafio é a subjetividade inerente ao processo de 
-avaliação manual. Como os quatro critérios de graduação, superfície, 
-bordas, cantos e centralização, são analisados visualmente por 
-avaliadores humanos, o resultado final tende a variar entre 
-profissionais diferentes, especialmente em casos limítrofes 
-\cite{Nahar2025}. Esse fator limita a reprodutibilidade das 
-avaliações e compromete a confiabilidade do processo em escala 
-industrial \cite{Warren2026}.
+O terceiro desafio é a subjetividade inerente ao processo de avaliação manual. 
+Como os quatro critérios de graduação — superfície, bordas, cantos e 
+centralização — são analisados visualmente por avaliadores humanos, o resultado 
+final tende a variar entre profissionais diferentes, especialmente em casos 
+limítrofes \cite{Nahar2025}. Esse fator limita a reprodutibilidade das 
+avaliações e compromete a confiabilidade do processo em escala industrial 
+\cite{Warren2026}.
 
-Por fim, o cálculo preciso da centralização representa um desafio 
-geométrico específico. As bordas de uma carta padrão TCG têm 
-espessura de poucos milímetros, o que significa que variações 
-mínimas na detecção dessas bordas já são suficientes para alterar 
-a nota final do critério \cite{Warren2026}. Medir essas bordas com 
-precisão exige algoritmos dedicados de detecção de bordas e 
-tratamento prévio de ruídos visuais para garantir medições 
-consistentes \cite{Warren2026, Tian2022}.
+Por fim, a própria natureza dos defeitos visuais em cartas TCG representa um 
+desafio técnico adicional. Imperfeições como riscos superficiais, desgastes e
+pequenas dobras podem ocupar regiões muito reduzidas da imagem e, em muitos casos,
+apresentar contraste sutil em relação ao fundo da carta. Essa característica dificulta
+tanto a anotação quanto a detecção automática desses defeitos, especialmente em cenários
+com quantidade limitada de dados rotulados \cite{Nahar2025, Warren2026}.
 
 % ---------------------------------------------------------------
 \section{Metodologia da pesquisa bibliográfica}
@@ -582,13 +590,13 @@ computacional \cite{Hussain2023, Ramos2025}. Entre essas evoluções, versões m
 adotaram o paradigma \textit{anchor-free}, reduzindo a dependência de caixas âncora pré-definidas
 e simplificando o ajuste do modelo a domínios específicos \cite{Ramos2025}.
 
-No presente trabalho, o interesse na família YOLO não se deve apenas à sua popularidade,
+No presente trabalho, a escolha da versão YOLOv8 não se deve apenas à sua popularidade,
 mas à adequação de sua formulação ao problema investigado. Como os defeitos em cartas TCG 
 podem ser pequenos, localizados e visualmente sutis, a tarefa exige um detector capaz de 
 preservar a informação espacial do defeito e, ao mesmo tempo, operar de forma eficiente mesmo
 em contexto de poucos dados. Além disso, \citeonline{Warren2026} demonstram que modelos da família YOLO
 podem ser aplicados à localização de defeitos em cartas colecionáveis, o que reforça sua pertinência
-ao domínio estudado \cite{Warren2026}. Dessa forma, a adoção do YOLO neste trabalho está associada
+ao domínio estudado. Dessa forma, a adoção do YOLO neste trabalho está associada
 tanto à natureza da tarefa quanto à viabilidade de sua adaptação a um \textit{dataset} reduzido com auxílio de \textit{transfer learning}.
 
 % ---------------------------------------------------------------
@@ -633,29 +641,36 @@ com datasets reduzidos, tanto em precisão quanto em velocidade
 de convergência.
 
 % ---------------------------------------------------------------
-\begin{comment}
-\subsection{Few-Shot Object Detection}
-\label{subsec:fsod}
+\subsection{Detecção de Objetos em Cenários com Dados Limitados}
+\label{subsec:low_data_detection}
 
-A detecção de objetos com poucos exemplos (\textit{Few-Shot Object Detection} -- FSOD) 
-busca adaptar modelos de detecção a novas classes a partir de um número reduzido de 
-amostras anotadas. Em contraste com abordagens tradicionais de detecção, que dependem 
-de grandes volumes de dados rotulados, o FSOD foi proposto para cenários em que a coleta 
-e anotação de dados é custosa ou inviável \cite{Chudasama2024}.
+A detecção de objetos em cenários com dados limitados constitui um problema 
+relevante em visão computacional, especialmente em domínios nos quais a coleta 
+e a anotação de imagens são custosas. Diferentemente de tarefas de classificação, 
+a detecção exige não apenas reconhecer a classe de interesse, mas também localizar 
+espacialmente cada instância na imagem, o que torna o aprendizado mais sensível à 
+escassez de exemplos rotulados. Nesse contexto, a literatura recente passou a tratar 
+esse tipo de dificuldade no âmbito mais amplo da \textit{Low-Shot Object Detection} 
+(LSOD), que engloba diferentes configurações de detecção em regime de dados escassos 
+\cite{Huang2023}.
 
-No regime padrão de FSOD, o modelo é inicialmente treinado em um conjunto de classes-base, 
-com abundância de exemplos, e posteriormente adaptado a classes novas (\textit{novel classes}) 
-com apenas poucas amostras anotadas. Essa formulação é particularmente relevante em contextos 
-reais de dados limitados, nos quais o treinamento supervisionado convencional tende a sofrer com 
-\textit{overfitting} e baixa capacidade de generalização \cite{Chudasama2024}.
+No caso da detecção de defeitos, essa dificuldade tende a ser ainda maior, pois muitos 
+defeitos ocupam regiões pequenas da imagem e apresentam contraste sutil em relação ao 
+fundo. Em aplicações de inspeção visual, essa combinação entre poucos dados anotados e 
+objetos pequenos ou pouco salientes pode comprometer a capacidade de generalização dos 
+detectores e aumentar o risco de \textit{overfitting} \cite{Ramos2025, Paiano2024}. 
+Por esse motivo, estratégias como \textit{transfer learning}, aumento de dados e técnicas 
+de pré-processamento tornam-se particularmente relevantes para viabilizar o treinamento 
+de modelos em conjuntos reduzidos \cite{Situ2023, Paiano2024}.
 
-Além do cenário padrão, a literatura também descreve variantes como \textit{generalized few-shot object detection}, 
-\textit{incremental few-shot object detection}, \textit{open-set few-shot object detection} e 
-\textit{few-shot domain adaptive object detection}, que diferem quanto à disponibilidade dos dados 
-e ao conjunto de classes considerado na inferência \cite{Chudasama2024}. No contexto deste trabalho, 
-o interesse recai principalmente sobre a ideia central do FSOD: melhorar a detecção em cenários 
-com poucos exemplos anotados, complementando estratégias como \textit{transfer learning} e aumento de dados.
-\end{comment}
+No presente trabalho, esse problema se manifesta de forma direta, uma vez que o conjunto 
+de dados disponível é limitado e os defeitos de interesse em cartas TCG, como riscos 
+superficiais, desgastes e pequenas dobras, podem ser visualmente sutis e ocupar regiões 
+específicas da carta \cite{Nahar2025, Warren2026}. Assim, a investigação proposta não 
+adota um protocolo formal de \textit{Few-Shot Object Detection}, baseado em classes-base 
+e classes novas, mas se insere no contexto mais amplo da detecção de objetos com dados 
+limitados, buscando avaliar como estratégias de treinamento podem contribuir para melhorar 
+o desempenho do detector nesse cenário.
 % ---------------------------------------------------------------
 \subsection{Aumento de Dados}
 \label{subsec:data_augmentation}
@@ -719,10 +734,9 @@ captura de imagens de referência com uma superfície branca
 uniforme sob as mesmas condições de iluminação utilizadas 
 para as imagens do objeto, gerando uma matriz de correção 
 que é aplicada a cada imagem de entrada por multiplicação 
-elemento a elemento \cite{Warren2026}.
+elemento a elemento.
 
-Os resultados reportados por \citeonline{Warren2026} 
-demonstram que a FFC reduz a variância da intensidade das 
+Os resultados demonstram que a FFC reduz a variância da intensidade das 
 imagens em aproximadamente 99,97\%, eliminando artefatos 
 de iluminação e preservando os detalhes reais da superfície 
 da carta. Essa normalização é especialmente relevante para 
@@ -798,15 +812,15 @@ Os trabalhos relacionados selecionados nesta seção foram escolhidos com base n
 
 \subsection{Trabalho 1: \textit{Automated corner grading of trading cards: Defect identification and confidence calibration through deep learning}}
 
-\citeonline{Nahar2025} abordaram o problema da automação da inspeção de defeitos em cartas colecionáveis, com foco específico na graduação de cantos, um dos critérios mais relevantes e subjetivos do processo de avaliação manual. Esse problema é diretamente relacionado ao presente trabalho, pois ambos investigam o uso de visão computacional para apoiar a identificação de defeitos visuais em cartas TCG. Para resolvê-lo, os autores propuseram um modelo baseado em \textit{transfer learning} utilizando a arquitetura DenseNet201 para classificar defeitos em cantos de cartas em quatro níveis de severidade, além de incorporar técnicas de calibração de confiança e um mecanismo de \textit{human-in-the-loop}. Os resultados reportaram acurácia média de 83\%, posteriormente elevada para 85\% após realimentação com amostras mal classificadas. No entanto, o trabalho apresenta limitações importantes: o estudo está restrito apenas ao critério de cantos, utiliza um conjunto relativamente pequeno de 593 cartas (4.744 imagens de cantos) e não realiza comparação sistemática entre diferentes estratégias de treinamento em cenários de baixo volume de dados. O presente trabalho diferencia-se por ampliar o foco para a detecção de defeitos visuais em cartas TCG em um cenário explicitamente caracterizado por poucos dados, comparando, por meio de um estudo de ablação, o impacto de diferentes estratégias de treinamento sobre o desempenho do modelo. \cite{Nahar2025} 
+\citeonline{Nahar2025} abordaram o problema da automação da inspeção de defeitos em cartas colecionáveis, com foco específico na graduação de cantos, um dos critérios mais relevantes e subjetivos do processo de avaliação manual. Esse problema é diretamente relacionado ao presente trabalho, pois ambos investigam o uso de visão computacional para apoiar a identificação de defeitos visuais em cartas TCG. Para resolvê-lo, os autores propuseram um modelo baseado em \textit{transfer learning} utilizando a arquitetura DenseNet201 para classificar defeitos em cantos de cartas em quatro níveis de severidade, além de incorporar técnicas de calibração de confiança e um mecanismo de \textit{human-in-the-loop}. Os resultados reportaram acurácia média de 83\%, posteriormente elevada para 85\% após realimentação com amostras mal classificadas. No entanto, o trabalho apresenta limitações importantes: o estudo está restrito apenas ao critério de cantos, utiliza um conjunto relativamente pequeno de 593 cartas (4.744 imagens de cantos) e não realiza comparação sistemática entre diferentes estratégias de treinamento em cenários de baixo volume de dados. O presente trabalho diferencia-se por ampliar o foco para a detecção de defeitos visuais em cartas TCG em um cenário explicitamente caracterizado por poucos dados, comparando, por meio de um estudo de ablação, o impacto de diferentes estratégias de treinamento sobre o desempenho do modelo. 
 
 \subsection{Trabalho 2: \textit{TCG-AI: AI Integration in Collectibles Grading for Trading Card Games and Sport Cards}}
 
-\citeonline{Warren2026} investigam o problema da automação da graduação de cartas colecionáveis por meio de um sistema híbrido que combina técnicas clássicas de visão computacional com redes neurais convolucionais e YOLOv8 com suporte a \textit{oriented bounding boxes}. Assim como no presente trabalho, os autores buscam reduzir a subjetividade e melhorar a consistência do processo de grading. A metodologia proposta organiza a avaliação em múltiplas etapas, cobrindo centralização, cantos, bordas, superfície e nota global, apoiada por uma plataforma robótica de captura padronizada e um grande conjunto de dados com mais de 43.000 amostras após aumento de dados. Os resultados indicam que abordagens baseadas em CNN apresentam melhor acurácia preditiva do que pipelines puramente baseados em OpenCV, enquanto o framework híbrido melhora a localização dos defeitos e a interpretabilidade das decisões. Apesar da relevância do trabalho, ele apresenta limitações para o contexto deste TCC: depende de infraestrutura proprietária de captura, trabalha com um volume muito elevado de dados e prioriza a construção de um sistema completo de grading, em vez da comparação sistemática de estratégias em contexto de poucos dados. O presente trabalho avança ao concentrar a investigação especificamente no desempenho de diferentes estratégias de treinamento em um \textit{dataset} reduzido e real, o que o aproxima de cenários mais restritivos e comuns em aplicações que dependem de anotação especializada. \cite{Warren2026} 
+\citeonline{Warren2026} investigam o problema da automação da graduação de cartas colecionáveis por meio de um sistema híbrido que combina técnicas clássicas de visão computacional com redes neurais convolucionais e YOLOv8 com suporte a \textit{oriented bounding boxes}. Assim como no presente trabalho, os autores buscam reduzir a subjetividade e melhorar a consistência do processo de grading. A metodologia proposta organiza a avaliação em múltiplas etapas, cobrindo centralização, cantos, bordas, superfície e nota global, apoiada por uma plataforma robótica de captura padronizada e um grande conjunto de dados com mais de 43.000 amostras após aumento de dados. Os resultados indicam que abordagens baseadas em CNN apresentam melhor acurácia preditiva do que pipelines puramente baseados em OpenCV, enquanto o framework híbrido melhora a localização dos defeitos e a interpretabilidade das decisões. Apesar da relevância do trabalho, ele apresenta limitações para o contexto deste TCC: depende de infraestrutura proprietária de captura, trabalha com um volume muito elevado de dados e prioriza a construção de um sistema completo de grading, em vez da comparação sistemática de estratégias em contexto de poucos dados. O presente trabalho avança ao concentrar a investigação especificamente no desempenho de diferentes estratégias de treinamento em um \textit{dataset} reduzido e real, o que o aproxima de cenários mais restritivos e comuns em aplicações que dependem de anotação especializada.  
 
 \subsection{Trabalho 3: \textit{A transfer learning-based YOLO network for sewer defect detection in comparison to classic object detection methods}}
 
-\citeonline{Situ2023} trataram do problema da detecção automática de defeitos visuais em um ambiente de inspeção, comparando uma rede YOLO com \textit{transfer learning} contra diferentes métodos clássicos e múltiplos \textit{backbones} pré-treinados. Embora o domínio de aplicação seja distinto, o problema metodológico é muito próximo ao deste TCC: avaliar o impacto de diferentes estratégias e configurações de modelos de detecção em tarefas de defeito visual com limitação prática de dados rotulados. Para isso, os autores utilizaram uma YOLO\_v2 associada a 11 CNNs pré-treinadas e a compararam com quatro detectores tradicionais (R-CNN, Fast R-CNN, Faster R-CNN e SSD), medindo precisão de detecção, tempo computacional e IoU. Os resultados mostraram que os métodos baseados em YOLO com \textit{transfer learning} superaram os demais detectores, e que o uso de \textit{transfer learning} foi necessário para melhorar o desempenho em cenários com dados rotulados limitados ou ambientes desafiadores. A principal limitação do estudo, no entanto, está na distância de domínio em relação ao presente trabalho, já que o experimento foi conduzido com defeitos em redes de esgoto e não em cartas colecionáveis. Ainda assim, o trabalho é altamente relevante por oferecer uma referência metodológica sólida para comparação entre arquiteturas, \textit{backbones} e estratégias de treinamento. O presente trabalho diferencia-se por transferir esse raciocínio comparativo para o domínio específico de cartas Pokémon TCG, com ênfase na análise de defeitos sutis e na avaliação de estratégias em um cenário real de baixo volume de dados. \cite{Situ2023} 
+\citeonline{Situ2023} trataram do problema da detecção automática de defeitos visuais em um ambiente de inspeção, comparando uma rede YOLO com \textit{transfer learning} contra diferentes métodos clássicos e múltiplos \textit{backbones} pré-treinados. Embora o domínio de aplicação seja distinto, o problema metodológico é muito próximo ao deste TCC: avaliar o impacto de diferentes estratégias e configurações de modelos de detecção em tarefas de defeito visual com limitação prática de dados rotulados. Para isso, os autores utilizaram uma YOLO\_v2 associada a 11 CNNs pré-treinadas e a compararam com quatro detectores tradicionais (R-CNN, Fast R-CNN, Faster R-CNN e SSD), medindo precisão de detecção, tempo computacional e IoU. Os resultados mostraram que os métodos baseados em YOLO com \textit{transfer learning} superaram os demais detectores, e que o uso de \textit{transfer learning} foi necessário para melhorar o desempenho em cenários com dados rotulados limitados ou ambientes desafiadores. A principal limitação do estudo, no entanto, está na distância de domínio em relação ao presente trabalho, já que o experimento foi conduzido com defeitos em redes de esgoto e não em cartas colecionáveis. Ainda assim, o trabalho é altamente relevante por oferecer uma referência metodológica sólida para comparação entre arquiteturas, \textit{backbones} e estratégias de treinamento. O presente trabalho diferencia-se por transferir esse raciocínio comparativo para o domínio específico de cartas Pokémon TCG, com ênfase na análise de defeitos sutis e na avaliação de estratégias em um cenário real de baixo volume de dados.  
 
 \vspace{0.5cm}
 
