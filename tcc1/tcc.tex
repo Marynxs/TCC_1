@@ -131,7 +131,7 @@ de graduação de cartas, atualmente realizado de forma manual e sujeito à subj
 A revisão bibliográfica abrange visão computacional, inspeção visual automatizada, Deep
 Learning, \textit{transfer learning} e técnicas para treinamento com conjuntos limitados de imagens 
 anotadas. Como solução proposta, pretende-se implementar um pipeline de treinamento e avaliação utilizando
-o modelo YOLOv8, combinada com técnicas de fotometria e aumento de dados (\textit{data augmentation}),
+o modelo YOLOv8, combinado com técnicas de fotometria e aumento de dados (\textit{data augmentation}),
 comparando o impacto de diferentes estratégias de treinamento por meio de métricas quantitativas 
 em um \textit{dataset} real de 88 cartas fornecido por uma empresa brasileira especializada em graduação de cartas TCG.
 
@@ -320,9 +320,7 @@ favorecem a detecção automática de defeitos como apoio à inspeção visual \
 
 \subsection{Objetivo Geral}
 
-Avaliar o desempenho de estratégias de treinamento em um modelo
-de visão computacional aplicados à detecção de defeitos em 
-cartas Pokémon TCG em cenários com baixo volume de dados.
+Avaliar o desempenho de estratégias de treinamento aplicadas ao modelo YOLOv8 para detecção de defeitos em cartas Pokémon TCG em cenários com baixo volume de dados.
 
 \subsection{Objetivos Específicos}
 
@@ -337,8 +335,8 @@ cartas Pokémon TCG em cenários com baixo volume de dados.
     incluindo \textit{transfer learning}, aumento de dados (\textit{data augmentation})
     e técnicas de pré-processamento de imagem.
     
-    \item Conduzir um estudo de ablação para analisar o impacto individual de cada estratégia
-    de treinamento no desempenho dos modelos.
+    \item Conduzir um estudo de ablação para analisar o impacto individual e cumulativo 
+    de cada estratégia de treinamento no desempenho do modelo.
     
     \item Comparar o desempenho das diferentes configurações por meio de métricas quantitativas,
     como precisão, \textit{recall}, F1-score e \textit{mean Average Precision} (mAP).
@@ -853,27 +851,145 @@ Uma tabela comparativa ajuda a sintetizar as diferenças entre os trabalhos:
 \chapter{Desenvolvimento}
 \label{cap:desenvolvimento}
 
-Neste capítulo, apresenta-se a solução proposta para o problema identificado, bem como o cronograma de trabalho previsto para o desenvolvimento completo do projeto no TCC2.
-
+Neste capítulo, apresenta-se a metodologia experimental proposta para o desenvolvimento do trabalho no TCC2, bem como o cronograma previsto para a execução das etapas planejadas.
 % ---------------------------------------------------------------
-\section{Solução proposta}
+\section{Metodologia experimental}
 \label{sec:solucao}
 
-Descreva detalhadamente a solução que será desenvolvida para resolver o problema apresentado na introdução. A descrição deve incluir:
+\subsection{Visão geral da proposta}
+\label{subsec:visao_geral}
 
-\begin{itemize}
-    \item \textbf{Visão geral da solução}: o que será desenvolvido (sistema, aplicativo, modelo, ferramenta, etc.);
-    \item \textbf{Arquitetura}: como os componentes da solução se organizam e interagem;
-    \item \textbf{Tecnologias e ferramentas}: quais linguagens, frameworks, bibliotecas, bancos de dados e ambientes serão utilizados, e por que foram escolhidos;
-    \item \textbf{Funcionalidades principais}: o que a solução fará para atender aos objetivos;
-    \item \textbf{Metodologia de desenvolvimento}: qual abordagem será utilizada (ágil, cascata, prototipação, etc.);
-    \item \textbf{Critérios de validação}: como será medido o sucesso da solução (métricas, testes, avaliação com usuários, etc.).
-\end{itemize}
+A proposta deste trabalho consiste no desenvolvimento de um pipeline 
+experimental para detecção de defeitos visuais em cartas Pokémon TCG 
+utilizando o modelo YOLOv8. O objetivo não é construir um sistema completo 
+de graduação automática, mas avaliar, em um cenário com baixo volume de dados, 
+como diferentes estratégias de treinamento influenciam o desempenho do detector.
 
-Utilize diagramas, fluxogramas ou mockups para ilustrar a solução. Exemplo de descrição de arquitetura:
+O recorte metodológico adotado concentra-se na identificação de defeitos 
+superficiais visíveis na imagem, como riscos, desgastes e pequenas dobras, 
+por serem compatíveis com a formulação do problema como tarefa de detecção 
+de objetos. Critérios de graduação que exigem tratamento geométrico próprio, 
+como centralização, não integram o escopo experimental desta etapa.
 
-\textit{A solução proposta consiste em uma aplicação web composta por três camadas: front-end desenvolvido em React.js, back-end em Node.js com Express, e banco de dados PostgreSQL. A comunicação entre front-end e back-end será feita por meio de uma API REST.}
+A investigação será conduzida sobre um conjunto de 88 cartas fornecido por 
+uma empresa brasileira especializada em graduação. A partir desse conjunto, 
+será construída uma base de experimentação compatível com o formato exigido 
+pelo YOLOv8, permitindo comparar, de forma controlada, diferentes estratégias 
+de treinamento em contexto de dados limitados.
 
+\subsection{Organização e preparação do conjunto de dados}
+\label{subsec:dados}
+
+A primeira etapa do desenvolvimento consistirá na organização e preparação 
+do conjunto de dados. Nessa fase, as imagens serão revisadas quanto à qualidade, 
+padronizadas em nomenclatura e estrutura de diretórios, e convertidas para o 
+formato de anotação compatível com o YOLOv8. Caso necessário, também será feita 
+a revisão das anotações existentes, buscando garantir consistência entre as 
+classes de defeitos consideradas e as respectivas caixas delimitadoras.
+
+Após essa etapa, o conjunto será particionado em subconjuntos de treino, 
+validação e teste. Como se trata de um cenário com quantidade reduzida de 
+amostras, o particionamento será feito de modo a preservar, na medida do 
+possível, a representatividade das classes presentes em cada subconjunto. 
+Além disso, o mesmo particionamento será mantido em todos os experimentos, 
+a fim de garantir comparabilidade entre as configurações avaliadas.
+
+\subsection{Modelo base}
+\label{subsec:modelo_base}
+
+Como modelo de detecção será utilizada a versão YOLOv8, selecionada por seu 
+equilíbrio entre eficiência computacional e desempenho em tarefas de detecção 
+de objetos. O modelo base servirá como referência para o estudo de ablação, 
+permitindo avaliar de forma incremental a contribuição de cada estratégia 
+de treinamento.
+
+Inicialmente, será definida uma configuração base do YOLOv8 com parâmetros 
+fixos de treinamento. Entre os parâmetros mantidos constantes ao longo dos 
+experimentos estão resolução de entrada, número de épocas, taxa de aprendizado, 
+tamanho do lote e critério de parada. Os valores finais desses hiperparâmetros 
+serão estabelecidos a partir de testes preliminares, mas permanecerão iguais 
+em todas as configurações experimentais para que a comparação entre elas seja válida.
+
+\subsection{Estratégias de treinamento avaliadas}
+\label{subsec:estrategias}
+
+O trabalho comparará três estratégias principais de treinamento em cenário 
+de poucos dados: \textit{transfer learning}, aumento de dados 
+(\textit{data augmentation}) e pré-processamento fotométrico.
+
+O \textit{transfer learning} será empregado por meio do ajuste fino 
+(\textit{fine-tuning}) de pesos pré-treinados, buscando aproveitar 
+representações visuais previamente aprendidas em bases de larga escala. 
+Essa estratégia será comparada à configuração base para verificar em que 
+medida o uso de pesos pré-treinados melhora o desempenho do detector em 
+um conjunto reduzido de imagens.
+
+O aumento de dados será utilizado para ampliar artificialmente a variabilidade 
+do conjunto de treinamento. Serão consideradas transformações compatíveis com 
+o problema, como ajustes geométricos e fotométricos, desde que preservem a 
+interpretação visual dos defeitos e não distorçam suas características essenciais.
+
+Já o pré-processamento fotométrico terá como objetivo reduzir o impacto de 
+variações de iluminação e reflexos presentes nas imagens, especialmente em 
+cartas com superfícies holográficas. Essa etapa buscará tornar as imagens mais 
+consistentes do ponto de vista visual antes do treinamento, contribuindo para 
+a extração de características mais estáveis pelo modelo.
+
+\subsection{Estudo de ablação}
+\label{subsec:ablacao}
+
+A comparação entre as estratégias será realizada por meio de um estudo de 
+ablação cumulativo. Nesse tipo de desenho experimental, parte-se de uma 
+configuração base e, em seguida, novas estratégias são incorporadas de forma 
+progressiva, permitindo observar a contribuição individual e cumulativa de 
+cada uma delas.
+
+Serão consideradas quatro configurações experimentais principais:
+
+\begin{enumerate}
+    \item YOLOv8 base;
+    \item YOLOv8 com \textit{transfer learning};
+    \item YOLOv8 com \textit{transfer learning} e aumento de dados;
+    \item YOLOv8 com \textit{transfer learning}, aumento de dados e pré-processamento fotométrico.
+\end{enumerate}
+
+Esse desenho foi escolhido por ser compatível com o escopo do TCC1 e por 
+permitir uma análise clara da influência de cada estratégia em um contexto 
+de baixo volume de dados. Em vez de comparar múltiplas arquiteturas, a proposta 
+fixa o modelo YOLOv8 e concentra a investigação naquilo que constitui a 
+contribuição principal do trabalho: a comparação entre estratégias de treinamento.
+
+\subsection{Tecnologias e ferramentas}
+\label{subsec:ferramentas}
+
+A implementação será realizada em Python, linguagem amplamente utilizada em 
+projetos de visão computacional e aprendizado profundo. Para o treinamento do 
+modelo, será utilizada a biblioteca oficial da família YOLOv8. O processamento 
+das imagens e as etapas de preparação do conjunto de dados poderão ser apoiados 
+por bibliotecas de manipulação de imagens e visão computacional, como OpenCV. 
+Para a aplicação de transformações de aumento de dados, poderão ser utilizadas 
+bibliotecas específicas de \textit{augmentation}, desde que compatíveis com o 
+pipeline definido.
+
+Os experimentos serão executados em ambiente computacional com suporte a GPU, 
+de modo a reduzir o tempo de treinamento e viabilizar a execução das diferentes 
+configurações previstas no estudo de ablação.
+
+\subsection{Critérios de validação}
+\label{subsec:validacao}
+
+A validação do desempenho do modelo será feita por meio de métricas quantitativas 
+utilizadas em tarefas de detecção de objetos. A métrica principal será o 
+\textit{mean Average Precision} com limiar de IoU de 0,5 (mAP@0.5), por permitir 
+uma visão sintética do desempenho do detector em termos de classificação e localização.
+
+Como métricas complementares, também serão utilizados precisão, \textit{recall} 
+e F1-score, com o objetivo de fornecer uma análise mais detalhada do comportamento 
+do modelo em cada configuração experimental. A comparação entre os experimentos 
+buscará identificar quais estratégias produzem ganhos mais consistentes no cenário 
+de dados limitados considerado neste trabalho.
+
+% ---------------------------------------------------------------
 % ---------------------------------------------------------------
 \section{Cronograma de trabalho}
 \label{sec:cronograma}
@@ -889,50 +1005,47 @@ O cronograma a seguir apresenta, no formato de diagrama de Gantt, as atividades 
         vgrid,
         x unit=0.72cm,
         y unit title=0.6cm,
-        y unit chart=0.7cm,
+        y unit chart=0.9cm,
         title height=1,
         bar height=0.5,
         bar label font=\scriptsize,
+        group label font=\scriptsize\bfseries,
         title label font=\small,
         milestone label font=\scriptsize\itshape,
-        group label font=\scriptsize\bfseries,
         bar/.append style={fill=blue!40},
         group/.append style={draw=black, fill=blue!70},
         milestone/.append style={fill=red!70},
+        bar label node/.append style={text width=4cm, align=right},
+        group label node/.append style={text width=4cm, align=right},
+        milestone label node/.append style={text width=4cm, align=right}
     ]{1}{16}
-        % Título: semanas de 1 a 16
         \gantttitle{Semanas}{16} \\
         \gantttitlelist{1,...,16}{1} \\
 
-        % Grupo 1: Revisão e Planejamento
-        \ganttgroup{Fase 1: Planejamento}{1}{4} \\
-        \ganttbar{Revisão bibliográfica}{1}{3} \\
-        \ganttbar{Definição de requisitos}{2}{4} \\
-        \ganttbar{Projeto da arquitetura}{3}{4} \\
-        \ganttmilestone{Entrega do projeto}{4} \\
+        \ganttgroup{Fase 1: Preparação experimental}{1}{4} \\
+        \ganttbar{Revisão final da literatura e ajustes metodológicos}{1}{2} \\
+        \ganttbar{Organização e revisão das anotações do dataset}{2}{4} \\
+        \ganttbar{Padronização e particionamento dos dados}{3}{4} \\
+        \ganttmilestone{Base experimental preparada}{4} \\
 
-        % Grupo 2: Desenvolvimento
-        \ganttgroup{Fase 2: Desenvolvimento}{5}{11} \\
-        \ganttbar{Implementação do módulo 1}{5}{7} \\
-        \ganttbar{Implementação do módulo 2}{7}{9} \\
-        \ganttbar{Integração dos módulos}{9}{11} \\
-        \ganttmilestone{Protótipo funcional}{11} \\
+        \ganttgroup{Fase 2: Implementação do pipeline}{5}{7} \\
+        \ganttbar{Configuração do ambiente e ferramentas}{5}{5} \\
+        \ganttbar{Implementação do modelo base YOLOv8}{5}{6} \\
+        \ganttbar{Testes preliminares e ajuste de hiperparâmetros}{6}{7} \\
+        \ganttmilestone{Pipeline base validado}{7} \\
 
-        % Grupo 3: Testes e Finalização
-        \ganttgroup{Fase 3: Validação}{12}{16} \\
-        \ganttbar{Testes e validação}{12}{14} \\
-        \ganttbar{Ajustes e correções}{14}{15} \\
-        \ganttbar{Redação final do TCC2}{13}{16} \\
+        \ganttgroup{Fase 3: Execução dos experimentos}{8}{13} \\
+        \ganttbar{Experimento 1: YOLOv8 base}{8}{8} \\
+        \ganttbar{Experimento 2: YOLOv8 + transfer learning}{9}{10} \\
+        \ganttbar{Experimento 3: YOLOv8 + transfer learning + augmentation}{10}{11} \\
+        \ganttbar{Experimento 4: YOLOv8 + transfer learning + augmentation + fotometria}{11}{12} \\
+        \ganttbar{Consolidação e comparação dos resultados}{12}{13} \\
+        \ganttmilestone{Estudo de ablação concluído}{13} \\
+
+        \ganttgroup{Fase 4: Redação e finalização}{14}{16} \\
+        \ganttbar{Redação dos resultados e discussão}{14}{15} \\
+        \ganttbar{Revisão final do TCC2 e ajustes}{15}{16} \\
         \ganttmilestone{Entrega final}{16}
-
-        % Ligações entre atividades
-        \ganttlink{elem2}{elem3}
-        \ganttlink{elem3}{elem4}
-        \ganttlink{elem4}{elem5}
-        \ganttlink{elem7}{elem8}
-        \ganttlink{elem8}{elem9}
-        \ganttlink{elem9}{elem10}
-        \ganttlink{elem12}{elem13}
     \end{ganttchart}
     \legend{Fonte: Elaborado pelo autor (2026)}
 \end{figure}
