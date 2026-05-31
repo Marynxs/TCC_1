@@ -64,11 +64,11 @@
 % ---------------------------------------------------------------
 % INFORMAÇÕES DO DOCUMENTO
 % ---------------------------------------------------------------
-\titulo{Avaliação de técnicas de visão computacional para detecção de defeitos em cartas Pokémon TCG em cenários com baixo volume de dados aplicada à graduação de cartas}
+\titulo{Avaliação de estratégias de treinamento com YOLOv8 para detecção de defeitos em cartas Pokémon TCG em cenários com baixo volume de dados}
 \autor{Matheus da Silva Marini -- Matrícula: 1142514833}
 \local{São Paulo}
 \data{2026}
-\orientador{Prof. Afonso Lelis}
+\orientador{Prof. Afonso César Lelis Brandão}
 % \coorientador{Prof. Nome do Coorientador} % Descomente se houver coorientador
 
 \instituicao{%
@@ -120,7 +120,7 @@
 \begin{resumo}
 Este documento apresenta a proposta inicial do Trabalho de Conclusão 
 de Curso (TCC1) desenvolvido no SENAC Santo Amaro. O objetivo deste trabalho
-é comparar estratégias de visão computacional aplicadas à detecção de defeitos 
+é comparar estratégias de treinamento com YOLOv8 para detecção de defeitos 
 superficiais em cartas Pokémon TCG em cenários de baixo volume de dados, 
 identificando quais abordagens apresentam melhor desempenho com conjuntos
 limitados de imagens anotadas. A justificativa baseia-se na escassez de 
@@ -131,7 +131,7 @@ de graduação de cartas, atualmente realizado de forma manual e sujeito à subj
 A revisão bibliográfica abrange visão computacional, inspeção visual automatizada, Deep
 Learning, \textit{transfer learning} e técnicas para treinamento com conjuntos limitados de imagens 
 anotadas. Como solução proposta, pretende-se implementar um pipeline de treinamento e avaliação utilizando
-o modelo YOLOv8, combinado com técnicas de fotometria e aumento de dados (\textit{data augmentation}),
+o modelo YOLOv8, combinado com aumento de dados (\textit{data augmentation}) e com o uso de imagens fotométricas derivadas,
 comparando o impacto de diferentes estratégias de treinamento por meio de métricas quantitativas 
 em um \textit{dataset} real de 88 cartas fornecido por uma empresa brasileira especializada em graduação de cartas TCG.
 
@@ -176,147 +176,189 @@ em um \textit{dataset} real de 88 cartas fornecido por uma empresa brasileira es
 O mercado de Trading Card Games (TCG), representado por franquias 
 como Pokémon e Magic: The Gathering, deve movimentar aproximadamente 
 20 bilhões de dólares globalmente em 2026, com projeção de ultrapassar 
-76 bilhões até 2035 \cite{BRI2026}. Nesse mercado, o valor de uma carta 
-está diretamente ligado ao seu estado de conservação. Para certificar 
-essa condição e garantir a segurança das transações, consolidou-se o 
-serviço especializado de graduação de cartas (\textit{grading}) \cite{Nahar2025}. 
-A PSA, fundada em 1991, foi a pioneira em padronizar essa avaliação ao 
-estabelecer uma escala de 10 pontos que se tornaria norma do setor, 
-enquanto a Beckett, em 1999, introduziu subnotas para atributos 
-individuais \cite{Shen2025}. Essa metodologia baseia-se na inspeção 
-de quatro atributos físicos: superfície (\textit{surface}), bordas 
-(\textit{edges}), cantos (\textit{corners}) e centralização 
-(\textit{centering}), sendo a nota final definida pela análise 
-combinada desses fatores \cite{Nahar2025}.
+76 bilhões até 2035 \cite{BRI2026}. Nesse mercado, o valor comercial 
+de uma carta está diretamente ligado ao seu estado de conservação 
+física. Para certificar essa condição e conferir segurança às 
+transações, consolidou-se o serviço especializado de graduação de 
+cartas (\textit{card grading}), no qual profissionais avaliam cada 
+exemplar segundo critérios padronizados e atribuem uma nota que 
+sintetiza sua qualidade \cite{Nahar2025}. A PSA (\textit{Professional 
+Sports Authenticator}), pioneira nessa padronização, estabeleceu uma 
+escala de 10 pontos que se tornaria norma do setor \cite{Nahar2025}, 
+enquanto a Beckett Grading Services introduziu, posteriormente, 
+subnotas para atributos individuais da carta, ampliando o detalhamento 
+do processo de avaliação \cite{Shen2025}.
 
 O processo de graduação, no entanto, ainda é realizado de forma 
 predominantemente manual. Os avaliadores inspecionam cada carta com 
 lupas e iluminação controlada, o que torna a análise demorada, sujeita 
-à subjetividade de cada profissional e limitada em termos de escalabilidade. 
-Além disso, o manuseio frequente durante a inspeção representa um risco 
-à própria carta, pois o contato repetido pode causar desgastes que 
-reduzem a nota do item avaliado. Em um mercado no qual pequenas 
-diferenças de conservação representam grandes variações de preço, 
-essa inconsistência tem consequências financeiras diretas 
-\cite{Nahar2025, Warren2026}.
+à subjetividade de cada profissional e limitada em termos de 
+escalabilidade. Além disso, o manuseio frequente durante a inspeção 
+representa um risco à própria carta, pois o contato repetido pode 
+introduzir desgastes que reduzem a nota do item avaliado. Em um 
+mercado no qual diferenças sutis de conservação representam grandes 
+variações de preço, essa inconsistência tem consequências financeiras 
+diretas \cite{Nahar2025, Warren2026}.
 
 Como resposta a esses desafios, a automação baseada em visão 
 computacional tem sido investigada como alternativa à inspeção manual. 
-Na indústria de manufatura, sistemas de visão computacional já são 
-utilizados para automatizar inspeções de qualidade, empregando 
-arquiteturas de \textit{Deep Learning} e Redes Neurais Convolucionais 
-(CNNs) para detectar defeitos em tempo real \cite{Zheng2021}. No entanto, 
-a adaptação dessas abordagens ao contexto de cartas colecionáveis 
-apresenta dificuldades específicas, como variações de iluminação, 
-reflexos em superfícies holográficas (\textit{foil}) e a presença de 
-defeitos pequenos e sutis, como riscos superficiais, desgastes nas 
-bordas, pequenas dobras e marcas de pressão, que podem apresentar baixo 
-contraste em relação ao fundo \cite{Nahar2025, Warren2026}.
+Na indústria de manufatura, sistemas de inspeção visual automatizada 
+(\textit{Automated Visual Inspection} -- AVI) já empregam arquiteturas 
+de \textit{Deep Learning} e Redes Neurais Convolucionais (CNNs) para 
+detectar defeitos em superfícies com alta velocidade e reprodutibilidade 
+\cite{Zheng2021}. A adaptação dessas abordagens ao contexto de cartas 
+colecionáveis, contudo, não é direta: as características visuais 
+particulares das cartas e as condições reais de captura introduzem 
+desafios técnicos específicos que limitam a transferência imediata 
+das soluções desenvolvidas para domínios industriais convencionais 
+\cite{Nahar2025, Warren2026}.
 
-Outro desafio relevante está relacionado à disponibilidade de dados. 
-Em tarefas de detecção de objetos, especialmente em domínios 
-especializados, a obtenção de grandes volumes de dados anotados é 
-limitada, uma vez que esses modelos dependem fortemente de 
-\textit{datasets} rotulados e a construção de bases de dados anotadas 
-em larga escala é custosa e trabalhosa \cite{Situ2023}. Esse cenário 
-contribui para problemas como \textit{overfitting} e baixa capacidade 
-de generalização dos modelos \cite{Paiano2024}, motivando o uso de 
-estratégias como \textit{transfer learning}, aumento de dados 
-(\textit{data augmentation}) e abordagens voltadas ao aprendizado com 
-poucos exemplos.
+Um obstáculo adicional diz respeito à disponibilidade de dados. Em 
+tarefas de detecção de objetos em domínios especializados, a construção 
+de conjuntos de dados anotados em larga escala é custosa e trabalhosa, 
+pois cada imagem exige rotulagem especializada com caixas delimitadoras 
+precisas para cada instância de defeito \cite{Situ2023}. No contexto de cartas TCG, 
+essa restrição é ainda mais pronunciada: a anotação requer avaliação especializada 
+de defeitos segundo critérios técnicos de graduação, e os estudos existentes no domínio dependeram 
+de infraestrutura dedicada para viabilizar seus conjuntos de dados 
+\cite{Nahar2025, Warren2026}.
 
 Pesquisadores já investigaram o uso de técnicas de visão computacional 
-para detecção de defeitos no contexto de cartas colecionáveis 
-\cite{Warren2026, Nahar2025}, porém ainda há uma carência de estudos 
-que avaliem sistematicamente o desempenho de diferentes estratégias em 
-cenários com baixo volume de dados nesse contexto específico. Diante 
+para detecção de defeitos em cartas colecionáveis \cite{Warren2026, 
+Nahar2025}, porém ainda há uma carência de estudos que avaliem 
+sistematicamente o impacto de diferentes estratégias de treinamento em 
+cenários com baixo volume de dados nesse domínio específico. Diante 
 disso, este trabalho propõe uma análise comparativa de estratégias de 
-visão computacional aplicadas à detecção de defeitos em cartas TCG, 
-conduzida sobre um \textit{dataset} composto por 88 cartas fornecido por 
-uma empresa brasileira especializada em graduação. Para isso, será 
-adotado um pipeline experimental baseado no modelo YOLOv8, no qual 
-diferentes estratégias de treinamento serão avaliadas por meio de um 
-estudo de ablação. A partir de um modelo base, serão conduzidos 
-experimentos controlados nos quais técnicas como \textit{transfer learning}, 
-aumento de dados (\textit{data augmentation}) e métodos de 
-pré-processamento, como fotometria, serão progressivamente incorporados, 
-permitindo analisar o impacto de cada estratégia no desempenho do modelo. 
-A avaliação será realizada por meio de métricas quantitativas, com o 
-objetivo de identificar as abordagens mais eficazes em cenários com 
-dados limitados.
+treinamento para detecção de defeitos em cartas Pokémon TCG, conduzida 
+sobre um conjunto de dados composto por 88 cartas fornecido por uma 
+empresa brasileira especializada em graduação. As estratégias avaliadas 
+incluem \textit{transfer learning}, aumento de dados 
+(\textit{data augmentation}) e uso de imagens fotométricas derivadas, 
+avaliadas em configurações controladas para quantificar
+a contribuição individual e combinada de cada abordagem. A avaliação será realizada por meio de métricas 
+quantitativas consolidadas na literatura, com o objetivo de identificar 
+as combinações mais eficazes em cenários com dados limitados.
+
 % ---------------------------------------------------------------
 \section{Contexto}
 \label{sec:contexto}
 
-No processo de graduação de cartas colecionáveis, a avaliação do estado 
-físico é baseada na análise de atributos visuais da carta, como superfície, 
-bordas e cantos. Esses atributos estão diretamente relacionados à presença 
-de defeitos, que podem incluir riscos superficiais, desgastes nas bordas 
-(\textit{whitening}), pequenas dobras, marcas de pressão e irregularidades 
-de impressão \cite{Nahar2025, Warren2026}. Tais imperfeições frequentemente 
-apresentam baixa visibilidade, podendo ocorrer em regiões específicas da 
-carta e com variações sutis de textura e cor.
+Na graduação de cartas colecionáveis, a avaliação segue critérios 
+físicos padronizados que consideram superfície, bordas, cantos e 
+centralização como atributos independentes, cada um passível de 
+apresentar tipos específicos de defeito \cite{Nahar2025}. Do ponto de 
+vista visual, esses defeitos tendem a ser localizados em regiões 
+específicas da carta e podem ocupar áreas reduzidas da imagem, o que 
+os torna difíceis de identificar tanto manualmente quanto por meio de 
+modelos computacionais \cite{Warren2026}.
 
 Do ponto de vista computacional, a detecção desses defeitos apresenta 
-desafios relevantes. Muitos deles possuem dimensões reduzidas e baixo 
-contraste em relação ao fundo, dificultando sua identificação por modelos 
-de visão computacional. Além disso, superfícies holográficas (\textit{foil}), 
-comuns em cartas de maior valor, introduzem reflexos e variações de iluminação 
-que podem mascarar imperfeições ou gerar ruídos visuais, comprometendo a 
-extração de características relevantes \cite{Warren2026}.
+desafios que vão além dos encontrados em inspeção industrial 
+convencional. O primeiro deles é a variação de iluminação durante a 
+captura das imagens, denominada por \citeonline{Warren2026} de 
+\textit{Shadow Problem}: inconsistências espaciais de brilho causadas 
+pela geometria do equipamento de captura, pelo ângulo da câmera e por 
+reflexos ambientais, que podem obscurecer defeitos reais ou gerar 
+artefatos visuais interpretados erroneamente como danos 
+\cite{Warren2026}. O segundo desafio são os reflexos em superfícies 
+holográficas (\textit{foil}), presentes em cartas de maior raridade, 
+que refletem luz de forma intensa e irregular, agravando o problema de 
+iluminação e dificultando a extração de características relevantes 
+pelo modelo \cite{Warren2026}.
 
-Em tarefas de visão computacional aplicadas à inspeção visual, abordagens 
-baseadas em aprendizado profundo, como redes neurais convolucionais (CNNs) 
-e modelos de detecção de objetos, têm sido amplamente utilizadas para 
-identificar defeitos em diferentes domínios \cite{Zheng2021}. No entanto, 
-essas abordagens geralmente dependem de grandes volumes de dados anotados 
-para alcançar bom desempenho. No contexto de cartas colecionáveis, a 
-construção de \textit{datasets} extensos é limitada, uma vez que a anotação 
-de defeitos exige conhecimento especializado e condições controladas de 
-captura de imagem \cite{Situ2023, Nahar2025}.
+Um terceiro desafio diz respeito à natureza da tarefa de inspeção em si. 
+Abordagens baseadas em classificação por região, nas quais um modelo atribui 
+uma nota a uma área inteira da carta, não conseguem identificar onde dentro
+dessa região o defeito está localizado \cite{Warren2026}. Um canto pode apresentar 
+\textit{whitening} restrito à sua extremidade, mas o classificador produz apenas uma
+nota global para aquela região, sem indicar a posição ou a extensão do dano. Em
+sistemas de inspeção visual automatizada, essa limitação é reconhecida: modelos 
+baseados em aprendizado profundo aprendem representações hierárquicas das imagens,
+mas a ausência de localização espacial compromete tanto a interpretabilidade quanto 
+a precisão da avaliação \cite{Zheng2021}. Por esse motivo, a detecção de objetos,
+que produz caixas delimitadoras com classe e posição para cada defeito identificado,
+é mais adequada do que a classificação pura para essa tarefa \cite{Warren2026}.
 
-Esse cenário caracteriza um problema típico de aprendizado com poucos dados, 
-no qual modelos tendem a sofrer com \textit{overfitting} e baixa capacidade 
-de generalização \cite{Paiano2024}. Como consequência, torna-se necessário 
-o uso de estratégias específicas, como \textit{transfer learning}, aumento 
-de dados (\textit{data augmentation}) e técnicas de pré-processamento, que 
-buscam melhorar o desempenho dos modelos mesmo com conjuntos reduzidos de 
-treinamento.
+
+Por fim, a construção de conjuntos de dados anotados nesse domínio 
+impõe restrições práticas que delimitam diretamente o escopo de 
+investigação possível. \citeonline{Nahar2025} utilizaram 593 cartas
+escaneadas por um parceiro industrial para compor seu conjunto de 
+treinamento, enquanto \citeonline{Warren2026} construíram um conjunto
+de mais de 43.000 amostras após aumento de dados, apoiados por uma 
+plataforma robótica proprietária com iluminação controlada. Esses 
+volumes ilustram o que representa um conjunto de dados de larga escala 
+nesse domínio e evidenciam por que cenários com poucos exemplos rotulados, 
+como o conjunto de 88 cartas disponível neste trabalho, caracterizam uma 
+restrição real que demanda estratégias de treinamento específicas.
+
 
 % ---------------------------------------------------------------
 \section{Justificativa}
 \label{sec:justificativa}
 
-A anotação de defeitos em cartas colecionáveis exige conhecimento técnico especializado
-e envolve alto custo operacional, o que restringe a construção de bases de dados em 
-larga escala e justifica a investigação de estratégias eficazes para treinamento com 
-poucos exemplos \cite{Nahar2025, Situ2023}.
+No âmbito científico, os estudos existentes sobre automação da 
+graduação de cartas TCG apresentam contribuições relevantes, mas com 
+lacunas complementares que, juntas, abrem espaço para a investigação 
+proposta neste trabalho. \citeonline{Nahar2025} propõem um modelo 
+baseado em \textit{transfer learning} para graduação de cantos, 
+alcançando 83\% de acurácia sobre um conjunto de 593 cartas, mas o 
+estudo está restrito a um único critério de avaliação e não analisa 
+sistematicamente o impacto de diferentes estratégias de treinamento 
+no desempenho do modelo. \citeonline{Warren2026} desenvolvem um 
+\textit{pipeline} híbrido com YOLOv8 para detecção localizada de 
+defeitos, com resultados expressivos, mas construído sobre um 
+\textit{dataset} de mais de 43.000 amostras obtidas com plataforma 
+robótica proprietária. Nenhum dos dois trabalhos avalia o impacto 
+relativo de estratégias de treinamento em cenários com conjuntos 
+reduzidos de dados reais, lacuna que este trabalho se propõe a 
+investigar sobre um conjunto de 88 cartas fornecido por uma empresa 
+brasileira especializada em graduação.
 
-No âmbito científico, os estudos existentes sobre automação da graduação 
-de cartas TCG apresentam contribuições relevantes, mas com escopos específicos. 
-\citeonline{Nahar2025} propõem um modelo baseado em \textit{transfer learning} 
-para graduação de cantos, alcançando 83\% de acurácia, porém sobre um 
-conjunto de 593 cartas e restrito a um único atributo de avaliação. 
-\citeonline{Warren2026} desenvolvem um pipeline híbrido com YOLOv8 para 
-detecção localizada de defeitos, construído sobre um \textit{dataset} de mais de 
-43.000 amostras obtidas com plataforma robótica proprietária. Nenhum dos 
-dois trabalhos avalia sistematicamente o impacto relativo de diferentes 
-estratégias de treinamento em cenários com conjuntos reduzidos de dados 
-reais, lacuna que este trabalho se propõe a investigar com base em 
-um conjunto real de 88 cartas fornecido por uma empresa brasileira 
-especializada em graduação.
+A relevância de investigar estratégias como 
+\textit{transfer learning} e aumento de dados em cenários 
+com amostras escassas é sustentada pela literatura de 
+inspeção visual automatizada. \citeonline{Chen2021} 
+identificam o problema de pequenas amostras 
+(\textit{small sample problem}) como um dos desafios 
+centrais da detecção de defeitos industriais com 
+aprendizado profundo, apontando \textit{transfer learning}
+e aumento de dados como as principais estratégias para
+reduzir a dependência de grandes volumes de exemplos
+rotulados sem comprometer o desempenho dos modelos.
+A eficácia empírica do \textit{transfer learning} nesse
+contexto é ilustrada por \citeonline{Wang2022}, cujos
+experimentos demonstraram que um modelo treinado com apenas
+12,5\% do volume de dados disponível, apoiado por
+\textit{transfer learning} e estratégias de aumento de dados,
+superou o detector de referência em aproximadamente 15 pontos
+de mAP, evidência direta de que a combinação dessas
+estratégias pode compensar a escassez de exemplos rotulados.
 
-Na prática, os resultados desta investigação podem mostrar até que ponto 
-estratégias como \textit{transfer learning}, aumento de dados e 
-pré-processamento fotométrico permanecem eficazes quando aplicadas 
-a um conjunto reduzido de dados reais, sem depender de plataformas
-robóticas de captura ou de \textit{datasets} extensos. Essa análise
-é relevante para contextos em que a anotação é cara, o volume de 
-dados é limitado, pois permite avaliar em que medida essas estratégias 
-favorecem a detecção automática de defeitos como apoio à inspeção visual \cite{Warren2026, Nahar2025, Situ2023}.
+
+Na prática, os resultados desta investigação podem evidenciar em que 
+medida estratégias como \textit{transfer learning}, aumento de dados e o
+uso de imagens fotométricas derivadas permanecem eficazes quando aplicadas a 
+um conjunto reduzido de dados reais, sem depender de plataformas 
+robóticas de captura ou de \textit{datasets} extensos. Essa análise é 
+relevante para contextos em que a anotação é cara e o volume de dados 
+é limitado, permitindo avaliar em que medida essas estratégias 
+favorecem a detecção automática de defeitos como apoio à inspeção 
+visual \cite{Warren2026, Nahar2025, Situ2023}.
+
 % ---------------------------------------------------------------
 \section{Objetivos}
 \label{sec:objetivos}
+
+
+Este trabalho tem como foco avaliar o desempenho de estratégias de 
+treinamento aplicadas à detecção automática de defeitos em cartas 
+Pokémon TCG em um cenário com baixo volume de dados. A definição dos 
+objetivos a seguir foi guiada pela identificação das lacunas existentes 
+na literatura e pelas restrições práticas do conjunto de dados 
+disponível, buscando delimitar uma contribuição viável e 
+cientificamente fundamentada dentro do escopo de um trabalho de 
+conclusão de curso.
 
 \subsection{Objetivo Geral}
 
@@ -325,24 +367,27 @@ Avaliar o desempenho de estratégias de treinamento aplicadas ao modelo YOLOv8 p
 \subsection{Objetivos Específicos}
 
 \begin{enumerate}
-    \item Organizar e preparar um conjunto de dados de imagens de cartas Pokémon TCG, 
-    garantindo consistência nas anotações e nas condições de captura.
+    \item Organizar e preparar um conjunto de dados de imagens de cartas 
+    Pokémon TCG, adotando uma classe única de detecção denominada 
+    \textit{defeito}.
     
-    \item Implementar um modelo de detecção de objetos baseados na arquitetura YOLOv8 para 
-    identificação de defeitos visuais nas cartas.
+    \item Implementar quatro configurações experimentais baseadas em YOLOv8 com
+    \textit{transfer learning}, incluindo uma configuração de referência com imagens
+    RGB convencionais, e variações com aumento de dados (\textit{data augmentation})
+    e imagens fotométricas derivadas.
+
+    \item Conduzir um estudo de ablação baseado na comparação controlada entre 
+    quatro configurações experimentais, analisando o impacto individual e combinado 
+    do aumento de dados e das imagens fotométricas derivadas no desempenho do modelo.
+
+    \item Comparar o desempenho das diferentes configurações por meio 
+    de métricas quantitativas consolidadas em detecção de objetos, 
+    incluindo precisão (\textit{Precision}), revocação (\textit{Recall}), 
+    F1-\textit{score} e \textit{mean Average Precision} (mAP@0.5).
     
-    \item Aplicar estratégias de treinamento voltadas a cenários com poucos dados, 
-    incluindo \textit{transfer learning}, aumento de dados (\textit{data augmentation})
-    e técnicas de pré-processamento de imagem.
-    
-    \item Conduzir um estudo de ablação para analisar o impacto individual e cumulativo 
-    de cada estratégia de treinamento no desempenho do modelo.
-    
-    \item Comparar o desempenho das diferentes configurações por meio de métricas quantitativas,
-    como precisão, \textit{recall}, F1-score e \textit{mean Average Precision} (mAP).
-    
-    \item Analisar os resultados obtidos, identificando quais combinações de estratégias 
-    apresentam melhor desempenho em cenários com conjuntos de dados limitados.
+    \item Analisar os resultados obtidos, identificando quais estratégias 
+    de treinamento apresentam melhor desempenho em cenários com conjuntos 
+    de dados reais e limitados no domínio de inspeção de cartas TCG.
 \end{enumerate}
 
 % ===============================================================
@@ -351,32 +396,92 @@ Avaliar o desempenho de estratégias de treinamento aplicadas ao modelo YOLOv8 p
 \chapter{Revisão Bibliográfica}
 \label{cap:revisao}
 
-A revisão bibliográfica tem como finalidade apresentar o embasamento teórico do trabalho, demonstrando o conhecimento do autor sobre o tema e identificando o estado da arte. Este capítulo deve ser organizado por conceitos e temas, construindo uma linha de argumentação que sustente a proposta do trabalho.
+Este capítulo apresenta os fundamentos teóricos e os trabalhos relacionados
+que sustentam a proposta deste TCC. Inicialmente, são discutidos conceitos
+essenciais de visão computacional aplicados à inspeção visual automatizada,
+com ênfase em \textit{Deep Learning}, redes neurais convolucionais, detecção
+de objetos e na arquitetura YOLO. Em seguida, são abordadas estratégias
+relevantes para cenários com baixo volume de dados, como \textit{transfer learning},
+aumento de dados e uso de imagens fotométricas derivadas, além das métricas utilizadas
+na avaliação de detectores. Por fim, são analisados trabalhos relacionados ao
+problema investigado, com o objetivo de situar a pesquisa no estado da arte e
+evidenciar a lacuna que motiva a proposta deste trabalho.
 
 % ---------------------------------------------------------------
+\section{Metodologia da pesquisa bibliográfica}
+\label{sec:metodologia_pesquisa}
+
+A pesquisa bibliográfica foi realizada por meio da base Google Scholar, IEEE Xplore,
+ScienceDirect, MDPI utilizando combinações de termos em inglês diretamente relacionados aos temas centrais 
+do trabalho. As principais expressões de busca utilizadas foram: \textit{``transfer learning'' 
+AND ``object detection'' AND ``small dataset'' AND ``performance evaluation''}, 
+\textit{``trading card'' OR ``collectible card'' AND ``computer vision''}, 
+\textit{``card grading'' AND ``automated'' OR ``machine learning''}, 
+\textit{``surface defect detection'' AND ``computer vision'' AND ``scratch'' OR ``wear''},
+\textit{``ablation study'' AND ``object detection'' AND ``transfer learning''},
+\textit{``COCO dataset'' AND ``object detection'' AND ``YOLO pretraining''},
+\textit{``YOLOv8'' AND ``defect detection'' AND ``transfer learning''} e
+\textit{``data augmentation'' AND ``small dataset'' AND ``object detection''}.
+
+Foram priorizados trabalhos acadêmicos publicados entre 2021 e 2026, em língua inglesa, 
+disponíveis em periódicos ou anais de conferências. A seleção considerou principalmente 
+estudos revisados por pares, mas também incluiu \textit{preprints} e \textit{surveys} 
+recentes quando diretamente relacionados ao problema investigado ou necessários para 
+fundamentar conceitos técnicos específicos. Excepcionalmente, foi incluído um trabalho
+anterior a 2021 por se tratar de uma referência seminal diretamente relacionada aos 
+componentes técnicos utilizados na metodologia experimental, como o dataset COCO \cite{Lin2014}.
+
+De forma complementar, também foram consultadas fontes não acadêmicas, como páginas 
+institucionais, relatórios setoriais e matérias jornalísticas especializadas, utilizadas 
+exclusivamente para contextualização do mercado, caracterização do domínio de aplicação 
+e descrição de padrões de graduação de cartas. Nesses casos, também foram consideradas 
+fontes em língua portuguesa quando relevantes para o contexto brasileiro.
+
+A relevância de cada trabalho foi avaliada com base em sua aderência ao problema de 
+pesquisa, isto é, a detecção automatizada de defeitos visuais em cenários com baixo 
+volume de dados, com ênfase em aplicações de visão computacional em domínios especializados.
+
 \section{Referencial teórico}
 \label{sec:referencial}
 
 \subsection{Deep Learning e Redes Neurais Convolucionais}
 \label{subsec:dl_cnn}
 
-\textit{Deep Learning} é uma subárea do aprendizado de máquina que 
-utiliza redes neurais artificiais com múltiplas camadas para aprender 
-representações de dados a partir de exemplos, sem necessidade de 
-características projetadas manualmente \cite{Zheng2021}. No contexto 
-de visão computacional, as Redes Neurais Convolucionais (CNNs, do 
-inglês \textit{Convolutional Neural Networks}) são a arquitetura 
-predominante para tarefas de classificação de imagens, detecção de 
-objetos e inspeção de defeitos \cite{Hussain2023}. As CNNs utilizam 
-múltiplas camadas convolucionais combinadas com estruturas de agrupamento 
-(\textit{pooling}) para extrair padrões visuais diretamente dos pixels 
-da imagem \cite{Hussain2023}.
+\textit{Deep Learning} é uma subárea do aprendizado de máquina que utiliza
+redes neurais artificiais com múltiplas camadas para aprender representações
+diretamente a partir dos dados. Em visão computacional, essa abordagem reduziu
+a dependência de características projetadas manualmente, permitindo que os
+modelos extraíssem padrões visuais complexos a partir das próprias imagens
+\cite{Zheng2021}. Nesse contexto, as Redes Neurais Convolucionais (CNNs, do
+inglês \textit{Convolutional Neural Networks}) tornaram-se a arquitetura central
+para tarefas como classificação de imagens, detecção de objetos e inspeção de
+defeitos, pois utilizam camadas convolucionais para aprender características
+visuais em diferentes níveis de abstração \cite{Hussain2023}.
 
-Na inspeção visual automatizada de produtos industriais, CNNs têm 
-demonstrado resultados superiores aos métodos tradicionais na detecção 
-de defeitos em superfícies \cite{Zheng2021}. Esse desempenho explica 
-sua ampla adoção em tarefas de visão computacional que exigem 
-reconhecimento e localização de padrões visuais complexos.
+A relevância das CNNs em visão computacional foi consolidada por arquiteturas
+como AlexNet, VGGNet, GoogLeNet, ResNet e DenseNet, que demonstraram a eficácia
+de redes profundas na extração automática de características visuais
+\cite{Zheng2021,Hussain2023}. Embora apresentem diferenças estruturais, essas
+arquiteturas compartilham a ideia de aprender representações hierárquicas da
+imagem, nas quais camadas iniciais capturam padrões simples, como bordas e
+texturas, enquanto camadas mais profundas representam formas e estruturas mais
+complexas.
+
+Na inspeção visual automatizada, essa capacidade é especialmente importante
+porque defeitos de superfície podem variar em forma, escala, textura e contraste.
+Segundo \citeonline{Zheng2021}, métodos tradicionais dependiam de atributos
+manualmente projetados, o que os tornava sensíveis a variações nas condições de
+captura e no tipo de defeito. Já métodos baseados em \textit{deep learning}
+integram a extração e a aprendizagem de características em um mesmo processo,
+favorecendo maior adaptação a diferentes cenários de inspeção.
+
+Essa base também sustenta arquiteturas modernas de detecção, como a família
+YOLO, nas quais redes convolucionais são utilizadas para extrair características
+visuais que posteriormente são empregadas na localização e classificação dos
+objetos de interesse \cite{Hussain2023}. Assim, a compreensão das CNNs é
+necessária para fundamentar o uso de detectores baseados em \textit{deep learning}
+na identificação de defeitos visuais em cartas TCG.
+
 
 \subsection{Visão Computacional e Inspeção Visual Automatizada}
 \label{subsec:avi}
@@ -410,118 +515,81 @@ sucesso na inspeção de defeitos em semicondutores, aço e tecidos,
 atingindo taxas de acurácia superiores a 99\% em alguns casos 
 \cite{Zheng2021}.
 
-\subsection{Trading Card Games e o Mercado de Colecionismo}
-\label{subsec:tcg}
+\subsection{Defeitos visuais em cartas colecionáveis}
+\label{subsec:defeitos_visuais}
 
-Entre os domínios nos quais técnicas de visão computacional podem ser 
-aplicadas, destaca-se o mercado de cartas colecionáveis. Trading Card 
-Games (TCGs) são jogos baseados em cartas associadas a franquias de 
-entretenimento como Pokémon e Magic: The Gathering \cite{Nahar2025}. 
-Diferentemente de jogos de cartas tradicionais, cada carta em um TCG pode 
-apresentar atributos próprios de arte, raridade e uso em jogo, o que lhe 
-confere também valor de colecionismo individual. No caso do Pokémon TCG, 
-essa combinação entre jogabilidade estratégica e cultura de colecionismo 
-também se reflete na existência de um mercado secundário ativo para a 
-compra e venda de cartas individuais \cite{Shen2025}.
+A inspeção visual de cartas colecionáveis envolve a identificação
+de defeitos físicos distribuídos ao longo de regiões específicas
+da carta como a superfície, bordas e cantos \cite{Nahar2025}.
+Do ponto de vista computacional, compreender as características
+visuais desses defeitos é essencial para definir a formulação
+adequada da tarefa de detecção automática. 
 
-Nesse mercado, o valor comercial de uma carta está fortemente associado 
-ao seu estado de conservação físico. Imperfeições como arranhões na 
-superfície, desgaste nas bordas ou problemas de centralização podem reduzir 
-de forma significativa o preço de mercado do item \cite{Nahar2025}. Para 
-padronizar essa avaliação e aumentar a confiabilidade das transações, 
-consolidou-se a atuação de empresas especializadas em graduação de cartas 
-(\textit{card grading}), como a PSA (\textit{Professional Sports 
-Authenticator}) e a Beckett Grading Services \cite{Shen2025}.
+Os tipos de defeito mais relevantes para a inspeção visual automatizada incluem:
 
-A PSA, fundada em 1991, teve papel pioneiro na padronização desse tipo de 
-avaliação ao adotar uma escala de 10 pontos amplamente utilizada no setor, 
-enquanto a Beckett, a partir de 1999, introduziu subnotas para atributos 
-individuais da carta, ampliando o detalhamento do processo de graduação 
-\cite{Shen2025}. Esse modelo de avaliação padronizada tornou-se central no 
-mercado secundário de cartas, pois permite autenticar, encapsular e 
-classificar itens de forma mais confiável para compradores e vendedores 
-\cite{Heck2026}.
+\begin{itemize}
+    \item \textbf{Riscos superficiais (\textit{scratches}):}
+    arranhões ou marcas lineares na superfície da carta, causados
+    por atrito com outras cartas ou superfícies abrasivas. Podem
+    ocorrer tanto na face frontal quanto no verso e variam em
+    comprimento, profundidade e visibilidade \cite{Warren2026}.
 
-O processo de graduação considera, em geral, quatro atributos físicos da 
-carta: superfície (\textit{surface}), bordas (\textit{edges}), cantos 
-(\textit{corners}) e centralização (\textit{centering}). A nota final, em 
-uma escala de 1 a 10, resulta da análise combinada desses fatores 
-\cite{Nahar2025}. Cartas classificadas com notas mais altas, como 
-\textit{Gem Mint}, tendem a alcançar valores substancialmente superiores 
-aos de exemplares com notas mais baixas, em razão da maior preservação de 
-suas características físicas \cite{Warren2026,Heck2026}.
+    \item \textbf{Dobras e vincos (\textit{creases}):}
+    deformações resultantes de dobramento parcial da carta.
+    São considerados defeitos graves por comprometer a
+    integridade estrutural do substrato e por serem facilmente
+    perceptíveis mesmo em condições normais de iluminação
+    \cite{Nahar2025}.
 
-\subsection{Desafios Técnicos na Inspeção de Cartas}
-\label{subsec:desafios}
+    \item \textbf{\textit{Whitening}:} perda de pigmentação nas
+    bordas ou cantos da carta, que se tornam visivelmente mais
+    claros ou esbranquiçados em relação ao restante da superfície.
+    É um dos indicadores mais comuns de desgaste e um critério
+    central na avaliação de cantos e bordas \cite{Nahar2025,
+    Warren2026}.
 
-Apesar do potencial de aplicação de técnicas de visão computacional nesse 
-domínio, a inspeção automatizada de cartas TCG apresenta desafios técnicos 
-que a diferenciam da inspeção industrial convencional. O primeiro deles é 
-a variação de iluminação durante a captura das imagens. \citeonline{Warren2026} 
-denominam esse fenômeno de \textit{Shadow Problem}: inconsistências de brilho 
-causadas pela geometria do equipamento de captura, pelo ângulo da câmera e 
-por reflexos ambientais. Sem correção adequada, esses artefatos visuais 
-degradam a qualidade da imagem e podem levar a classificações incorretas 
-pelos modelos de graduação.
+    \item \textbf{Desgaste de cantos (\textit{corner wear}):}
+    arredondamento ou fratura das extremidades da carta causado
+    por manuseio frequente. Cantos originalmente pontiagudos
+    progressivamente perdem definição, o que reduz
+    diretamente a nota atribuída nesse critério \cite{Nahar2025}.
 
-O segundo desafio são os reflexos em superfícies holográficas (\textit{foil}). 
-Cartas com impressão holográfica refletem luz de forma intensa e irregular, o 
-que pode obscurecer defeitos críticos como arranhões e desgastes de superfície. 
-Esse comportamento óptico dificulta a segmentação da imagem e compromete a 
-precisão de modelos treinados em condições de iluminação uniforme 
-\cite{Warren2026}. Para mitigar esse problema, \citeonline{Nahar2025} optaram 
-por substituir câmeras convencionais por scanners de alta resolução, garantindo 
-iluminação constante e padronizada durante a captura.
+    \item \textbf{Desgaste de bordas (\textit{edge fraying}):}
+    deterioração das margens da carta, com possível separação
+    de fibras do substrato. Manifesta-se como irregularidades
+    visíveis ao longo das quatro bordas e pode ser acompanhado
+    de \textit{whitening} nas regiões afetadas \cite{Warren2026}.
 
-O terceiro desafio é a subjetividade inerente ao processo de avaliação manual. 
-Como os quatro critérios de graduação — superfície, bordas, cantos e 
-centralização — são analisados visualmente por avaliadores humanos, o resultado 
-final tende a variar entre profissionais diferentes, especialmente em casos 
-limítrofes \cite{Nahar2025}. Esse fator limita a reprodutibilidade das 
-avaliações e compromete a confiabilidade do processo em escala industrial 
-\cite{Warren2026}.
+    \item \textbf{Amassados (\textit{dents}):} deformações
+    localizadas na superfície causadas por pressão pontual,
+    que alteram o relevo da carta sem necessariamente produzir
+    dobras visíveis. Podem ser detectados por variações locais
+    de iluminação e são mais evidentes em imagens fotométricas
+    que realçam o relevo superficial \cite{Warren2026}.
+\end{itemize}
 
-Por fim, a própria natureza dos defeitos visuais em cartas TCG representa um 
-desafio técnico adicional. Imperfeições como riscos superficiais, desgastes e
-pequenas dobras podem ocupar regiões muito reduzidas da imagem e, em muitos casos,
-apresentar contraste sutil em relação ao fundo da carta. Essa característica dificulta
-tanto a anotação quanto a detecção automática desses defeitos, especialmente em cenários
-com quantidade limitada de dados rotulados \cite{Nahar2025, Warren2026}.
+Do ponto de vista computacional, esses defeitos apresentam
+características que dificultam sua detecção automática. Em
+geral, ocupam regiões pequenas em relação à área total da
+carta e exibem baixo contraste com a superfície adjacente,
+especialmente em cartas com estampas complexas ou
+superfícies holográficas (\textit{foil}) \cite{Warren2026}.
+Além disso, a aparência dos defeitos pode variar de acordo
+com as condições de iluminação durante a captura, a posição
+da câmera e o tipo de impressão da carta, o que torna a
+tarefa sensível às condições do sistema de aquisição de
+imagens \cite{Warren2026}.
 
-% ---------------------------------------------------------------
-\section{Metodologia da pesquisa bibliográfica}
-\label{sec:metodologia_pesquisa}
+A relevância de um sistema automatizado de detecção está
+diretamente relacionada a essas dificuldades. Em um processo
+de graduação manual, o avaliador inspeciona cada carta com
+lupas e iluminação controlada, e a subjetividade inerente
+a essa análise pode introduzir inconsistências na nota
+atribuída \cite{Nahar2025}. A automação baseada em visão
+computacional busca reduzir essa variabilidade ao produzir
+avaliações reprodutíveis e rastreáveis, com localização
+espacial explícita de cada defeito identificado.
 
-A pesquisa bibliográfica foi realizada principalmente por meio da base Google Scholar, 
-utilizando combinações de termos em inglês diretamente relacionados aos temas centrais 
-do trabalho. As principais expressões de busca utilizadas foram: \textit{``transfer learning'' 
-AND ``object detection'' AND ``small dataset'' AND ``performance evaluation''}, 
-\textit{``trading card'' OR ``collectible card'' AND ``computer vision''}, 
-\textit{``card grading'' AND ``automated'' OR ``machine learning''}, 
-\textit{``surface defect detection'' AND ``computer vision'' AND ``scratch'' OR ``wear''} 
-e \textit{``subpixel edge detection'' AND ``measurement precision'' AND ``computer vision''}.
-
-Foram priorizados trabalhos acadêmicos publicados entre 2021 e 2026, em língua inglesa, 
-disponíveis em periódicos ou anais de conferências. A seleção considerou principalmente 
-estudos revisados por pares, mas também incluiu \textit{preprints} e \textit{surveys} 
-recentes quando diretamente relacionados ao problema investigado ou necessários para 
-fundamentar conceitos técnicos específicos.
-
-De forma complementar, também foram consultadas fontes não acadêmicas, como páginas 
-institucionais, relatórios setoriais e matérias jornalísticas especializadas, utilizadas 
-exclusivamente para contextualização do mercado, caracterização do domínio de aplicação 
-e descrição de padrões de graduação de cartas. Nesses casos, também foram consideradas 
-fontes em língua portuguesa quando relevantes para o contexto brasileiro.
-
-A relevância de cada trabalho foi avaliada com base em sua aderência ao problema de 
-pesquisa, isto é, a detecção automatizada de defeitos visuais em cenários com baixo 
-volume de dados, com ênfase em aplicações de visão computacional em domínios especializados.
-
-% ---------------------------------------------------------------
-\section{Fundamentos}
-\label{sec:fundamentos}
-
-% ---------------------------------------------------------------
 \subsection{Detecção de Objetos}
 \label{subsec:deteccao_objetos}
 
@@ -541,7 +609,7 @@ entre a caixa delimitadora predita e a caixa de referência
 (\textit{ground truth}). O IoU é calculado como a razão entre a 
 área de interseção e a área de união das duas caixas, assumindo 
 valores entre 0 e 1, onde valores mais próximos de 1 indicam 
-maior precisão de localização \cite{Paiano2024}. A partir de um 
+maior precisão de localização \cite{Ramos2025}. A partir de um 
 limiar de IoU predefinido, tipicamente 0,5, uma predição é 
 classificada como verdadeiro positivo (TP) se a sobreposição 
 for suficiente, ou como falso positivo (FP) caso contrário 
@@ -575,186 +643,276 @@ está diretamente associada ao tipo de problema investigado.
 \subsection{Arquitetura YOLO}
 \label{subsec:yolo}
 
-A família YOLO (\textit{You Only Look Once}) representa uma das abordagens de
-detecção de objetos do tipo \textit{one-stage} mais difundidas na literatura 
-recente, destacando-se pelo equilíbrio entre velocidade de inferência e acurácia 
-\cite{Ramos2025}. Desde sua formulação inicial, a arquitetura trata a detecção 
-como um problema unificado, prevendo caixas delimitadoras e probabilidades de 
-classe diretamente a partir da imagem em uma única passagem pela rede \cite{Hussain2023}.
+A família YOLO (\textit{You Only Look Once}) representa uma das abordagens
+de detecção de objetos do tipo \textit{one-stage} mais difundidas na literatura
+recente, destacando-se pelo equilíbrio entre velocidade de inferência e acurácia
+\cite{Ramos2025}. Desde sua formulação inicial, a arquitetura trata a detecção
+como um problema unificado, prevendo caixas delimitadoras e probabilidades de
+classe diretamente a partir da imagem em uma única passagem pela rede
+\cite{Hussain2023}. Essa característica diferencia os modelos YOLO de detectores
+em duas etapas, nos quais a geração de regiões candidatas e a classificação são
+realizadas em fases separadas.
 
-Ao longo do tempo, diferentes versões da família YOLO incorporaram melhorias voltadas 
-ao tratamento de objetos em múltiplas escalas, à otimização do treinamento e à eficiência 
-computacional \cite{Hussain2023, Ramos2025}. Entre essas evoluções, versões mais recentes
-adotaram o paradigma \textit{anchor-free}, reduzindo a dependência de caixas âncora pré-definidas
-e simplificando o ajuste do modelo a domínios específicos \cite{Ramos2025}.
+Ao longo do tempo, diferentes versões da família YOLO incorporaram melhorias
+voltadas ao tratamento de objetos em múltiplas escalas, à otimização do
+treinamento e à eficiência computacional \cite{Hussain2023,Ramos2025}. O YOLOv8,
+lançado em 2023, mantém a estrutura modular composta por \textit{backbone},
+\textit{neck} e \textit{head}, mas introduz mudanças relevantes em relação a versões
+anteriores. Entre elas, destacam-se a adoção de um paradigma \textit{anchor-free},
+a substituição do módulo C3 pelo C2f, o uso de estruturas como PANet e SPPF para
+agregação de características em múltiplas escalas e uma cabeça de detecção com
+ramos desacoplados para classificação e regressão \cite{Ramos2025}.
 
-No presente trabalho, a escolha da versão YOLOv8 não se deve apenas à sua popularidade,
-mas à adequação de sua formulação ao problema investigado. Como os defeitos em cartas TCG 
-podem ser pequenos, localizados e visualmente sutis, a tarefa exige um detector capaz de 
-preservar a informação espacial do defeito e, ao mesmo tempo, operar de forma eficiente mesmo
-em contexto de poucos dados. Além disso, \citeonline{Warren2026} demonstram que modelos da família YOLO
-podem ser aplicados à localização de defeitos em cartas colecionáveis, o que reforça sua pertinência
-ao domínio estudado. Dessa forma, a adoção do YOLO neste trabalho está associada
-tanto à natureza da tarefa quanto à viabilidade de sua adaptação a um \textit{dataset} reduzido com auxílio de \textit{transfer learning}.
+O paradigma \textit{anchor-free} reduz a dependência de caixas âncora
+pré-definidas, permitindo que o modelo estime diretamente os centros dos objetos.
+Essa característica simplifica o treinamento e pode favorecer a adaptação a
+\textit{datasets} específicos, nos quais as proporções e distribuições dos objetos
+não seguem necessariamente os padrões de bases genéricas \cite{Ramos2025}. Já o
+módulo C2f busca melhorar o reaproveitamento de características intermediárias,
+aumentando a capacidade de representação do \textit{backbone} sem comprometer a
+eficiência computacional. Além disso, a combinação entre PANet e SPPF contribui
+para a fusão de informações em diferentes resoluções, aspecto relevante para
+tarefas que envolvem objetos pequenos ou localizados em regiões específicas da
+imagem \cite{Ramos2025}.
+
+O treinamento oficial do YOLOv8 é realizado sobre o dataset COCO
+(\textit{Common Objects in Context}), uma base de larga escala composta por
+mais de 328.000 imagens com 2,5 milhões de instâncias anotadas em 91 categorias
+de objetos comuns em cenas do cotidiano \cite{Lin2014}. Os pesos resultantes
+desse pré-treinamento são disponibilizados publicamente pela Ultralytics e
+constituem o ponto de partida padrão para adaptação do YOLOv8 a novos domínios,
+seja por meio de inferência direta ou de \textit{fine-tuning} \cite{Dobrzycki2025,
+Situ2023}.
+
+No presente trabalho, a escolha do YOLOv8 está relacionada à sua adequação ao
+problema investigado. Como os defeitos em cartas TCG podem ser pequenos,
+localizados e visualmente sutis, a tarefa exige um detector capaz de preservar
+informações espaciais e operar de forma eficiente. Além disso, o YOLOv8 possui
+variantes com diferentes relações entre custo computacional e desempenho, o que
+favorece sua aplicação em estudos experimentais com conjuntos reduzidos de dados
+\cite{Ramos2025}. Em cenários de adaptação de modelos pré-treinados,
+\citeonline{Dobrzycki2025} investigam estratégias de \textit{transfer learning}
+em arquiteturas YOLOv8 e YOLOv10, demonstrando que a escolha da configuração de
+treinamento depende das características do conjunto de dados e dos recursos
+computacionais disponíveis.
+
+Por fim, a adoção do YOLOv8 também é coerente com trabalhos recentes no domínio
+de cartas colecionáveis. \citeonline{Warren2026} utilizam YOLOv8 com caixas
+orientadas para a localização de defeitos finos e sensíveis à rotação, como
+riscos, dobras e desgastes em cartas. Embora o presente trabalho não tenha como
+objetivo reproduzir uma arquitetura de \textit{grading} completo, esse uso reforça
+a pertinência da família YOLO para tarefas de localização de imperfeições visuais
+em cartas.
+
+O modelo base (\textit{baseline}) adotado neste trabalho 
+corresponde ao YOLOv8 inicializado com pesos pré-treinados 
+no COCO e submetido a \textit{fine-tuning} sobre o conjunto 
+de imagens RGB de cartas Pokémon TCG, com a classe única 
+\textit{defeito}. Essa configuração serve como referência 
+do estudo de ablação, permitindo quantificar o ganho de 
+desempenho atribuível ao aumento de dados e ao uso de 
+imagens fotométricas derivadas, conforme detalhado no 
+Capítulo~\ref{cap:desenvolvimento}.
+
+
 
 % ---------------------------------------------------------------
 \subsection{Transfer Learning}
 \label{subsec:transfer_learning}
 
-\textit{Transfer learning} é uma estratégia de aprendizado de 
-máquina que consiste em aproveitar o conhecimento adquirido por 
-um modelo treinado em um domínio fonte para melhorar o 
-desempenho em um domínio alvo distinto \cite{Paiano2024}. 
-A motivação para essa abordagem reside na observação de que 
-modelos profundos aprendem representações hierárquicas de 
-características visuais que tendem a ser transferíveis entre 
-domínios, especialmente nas camadas mais rasas da rede, que 
-capturam padrões genéricos como bordas, texturas e gradientes 
+\textit{Transfer learning} é uma estratégia de aprendizado de
+máquina que consiste em aproveitar o conhecimento adquirido por
+um modelo treinado em um domínio fonte para melhorar o
+desempenho em um domínio alvo distinto \cite{Situ2023}.
+A motivação para essa abordagem reside na observação de que
+modelos profundos aprendem representações hierárquicas de
+características visuais que tendem a ser transferíveis entre
+domínios, especialmente nas camadas mais rasas da rede, que
+capturam padrões genéricos como bordas, texturas e gradientes
 \cite{Situ2023}.
 
-Na prática, o \textit{transfer learning} em visão computacional 
-é implementado por meio de \textit{fine-tuning}: um modelo 
-pré-treinado em um dataset de larga escala, como ImageNet ou 
-COCO, tem seus pesos utilizados como ponto de partida, sendo 
-então re-treinado total ou parcialmente sobre o dataset alvo 
-\cite{Paiano2024}. Essa abordagem permite que o modelo se 
-adapte às características específicas do novo domínio sem 
-partir de uma inicialização aleatória, reduzindo 
-significativamente a quantidade de dados rotulados necessária 
+Na prática, o \textit{transfer learning} em visão computacional
+é implementado por meio de \textit{fine-tuning}: um modelo
+pré-treinado em um dataset de larga escala, como ImageNet ou
+COCO, tem seus pesos utilizados como ponto de partida, sendo
+então re-treinado total ou parcialmente sobre o dataset alvo
+\cite{Dobrzycki2025}. Essa abordagem permite que o modelo se
+adapte às características específicas do novo domínio sem
+partir de uma inicialização aleatória, reduzindo
+significativamente a quantidade de dados rotulados necessária
 para alcançar bom desempenho \cite{Situ2023}.
 
-Em cenários com baixo volume de dados, o \textit{transfer 
-learning} é especialmente relevante. Modelos treinados do 
-zero em datasets pequenos tendem a sofrer com 
-\textit{overfitting}, pois o número de parâmetros livres é 
-desproporcional à quantidade de exemplos disponíveis. Ao 
-inicializar com pesos pré-treinados, o modelo parte de uma 
-representação já rica em padrões visuais, o que atua como 
-uma forma de regularização implícita e melhora a capacidade 
-de generalização \cite{Paiano2024}. \citeonline{Situ2023} 
-demonstraram que modelos YOLO com \textit{transfer learning} 
-a partir de backbones pré-treinados superam consistentemente 
-modelos treinados do zero em tarefas de detecção de defeitos 
-com datasets reduzidos, tanto em precisão quanto em velocidade 
+Em cenários com baixo volume de dados, o \textit{transfer
+learning} é especialmente relevante. Modelos treinados do
+zero em datasets pequenos tendem a sofrer com
+\textit{overfitting}, pois o número de parâmetros livres é
+desproporcional à quantidade de exemplos disponíveis. Ao
+inicializar com pesos pré-treinados, o modelo parte de uma
+representação já rica em padrões visuais, o que atua como
+uma forma de regularização implícita e melhora a capacidade
+de generalização \cite{Dobrzycki2025}. \citeonline{Situ2023}
+demonstraram que modelos YOLO com \textit{transfer learning}
+a partir de backbones pré-treinados superam consistentemente
+modelos treinados do zero em tarefas de detecção de defeitos
+com datasets reduzidos, tanto em precisão quanto em velocidade
 de convergência.
 
 % ---------------------------------------------------------------
 \subsection{Detecção de Objetos em Cenários com Dados Limitados}
 \label{subsec:low_data_detection}
 
-A detecção de objetos em cenários com dados limitados constitui um problema 
-relevante em visão computacional, especialmente em domínios nos quais a coleta 
-e a anotação de imagens são custosas. Diferentemente de tarefas de classificação, 
-a detecção exige não apenas reconhecer a classe de interesse, mas também localizar 
-espacialmente cada instância na imagem, o que torna o aprendizado mais sensível à 
-escassez de exemplos rotulados. Nesse contexto, a literatura recente passou a tratar 
-esse tipo de dificuldade no âmbito mais amplo da \textit{Low-Shot Object Detection} 
-(LSOD), que engloba diferentes configurações de detecção em regime de dados escassos 
-\cite{Huang2023}.
 
-No caso da detecção de defeitos, essa dificuldade tende a ser ainda maior, pois muitos 
-defeitos ocupam regiões pequenas da imagem e apresentam contraste sutil em relação ao 
-fundo. Em aplicações de inspeção visual, essa combinação entre poucos dados anotados e 
-objetos pequenos ou pouco salientes pode comprometer a capacidade de generalização dos 
-detectores e aumentar o risco de \textit{overfitting} \cite{Ramos2025, Paiano2024}. 
-Por esse motivo, estratégias como \textit{transfer learning}, aumento de dados e técnicas 
-de pré-processamento tornam-se particularmente relevantes para viabilizar o treinamento 
-de modelos em conjuntos reduzidos \cite{Situ2023, Paiano2024}.
+A detecção de objetos em cenários com dados limitados constitui um
+problema relevante em visão computacional, especialmente em domínios
+nos quais a coleta e a anotação de imagens são custosas. Em tarefas de
+detecção, além de reconhecer a classe de interesse, o modelo também
+deve localizar espacialmente cada instância na imagem por meio de
+caixas delimitadoras \cite{Ramos2025}. Essa exigência torna o processo
+mais sensível à escassez de exemplos rotulados, uma vez que, além da
+imagem, é necessário dispor de anotações consistentes indicando a
+localização de cada objeto ou defeito de interesse \cite{Situ2023}.
 
-No presente trabalho, esse problema se manifesta de forma direta, uma vez que o conjunto 
-de dados disponível é limitado e os defeitos de interesse em cartas TCG, como riscos 
-superficiais, desgastes e pequenas dobras, podem ser visualmente sutis e ocupar regiões 
-específicas da carta \cite{Nahar2025, Warren2026}. Assim, a investigação proposta não 
-adota um protocolo formal de \textit{Few-Shot Object Detection}, baseado em classes-base 
-e classes novas, mas se insere no contexto mais amplo da detecção de objetos com dados 
-limitados, buscando avaliar como estratégias de treinamento podem contribuir para melhorar 
-o desempenho do detector nesse cenário.
+Em conjuntos reduzidos, modelos baseados em \textit{deep learning}
+tendem a apresentar maior risco de \textit{overfitting} e menor
+capacidade de generalização, pois há poucos exemplos disponíveis para
+representar adequadamente a variabilidade visual dos objetos ou
+defeitos \cite{Wang2022}. Esse problema torna-se ainda mais crítico em
+aplicações de inspeção visual, nas quais os defeitos podem ser pequenos,
+sutis, desbalanceados e difíceis de distinguir do fundo da imagem
+\cite{Chen2021,Wang2022}. No presente trabalho, essa limitação se
+manifesta no conjunto reduzido de imagens de cartas TCG e na presença
+de defeitos visualmente sutis, como riscos superficiais, desgastes e
+pequenas dobras \cite{Nahar2025,Warren2026}. Por esse motivo, a pesquisa
+não adota um protocolo formal de \textit{Few-Shot Object Detection}, mas
+se insere no contexto da detecção de objetos com baixo volume de dados,
+avaliando estratégias como \textit{transfer learning}, aumento de dados e
+uso de imagens fotométricas derivadas para melhorar o desempenho do detector
+\cite{Situ2023}.
+
 % ---------------------------------------------------------------
 \subsection{Aumento de Dados}
 \label{subsec:data_augmentation}
 
-O aumento de dados (\textit{data augmentation}) é um conjunto 
-de técnicas que busca ampliar artificialmente a diversidade 
-do conjunto de treinamento por meio de transformações aplicadas 
-às imagens existentes, sem a necessidade de coletar novos 
-exemplos \cite{Paiano2024}. O princípio subjacente é expor 
-o modelo a variações plausíveis dos dados durante o treinamento, 
-de modo que a representação aprendida seja mais robusta e 
+O aumento de dados (\textit{data augmentation}) é um conjunto
+de técnicas que busca ampliar artificialmente a diversidade
+do conjunto de treinamento por meio de transformações aplicadas
+às imagens existentes, sem a necessidade de coletar novos
+exemplos \cite{Situ2023}. O princípio subjacente é expor
+o modelo a variações plausíveis dos dados durante o treinamento,
+de modo que a representação aprendida seja mais robusta e
 generalizável a condições não vistas \cite{Situ2023}.
 
-As técnicas de aumento de dados podem ser agrupadas em duas 
-categorias principais. As transformações geométricas incluem 
-operações como espelhamento horizontal e vertical, rotação, 
-recorte aleatório (\textit{random crop}) e variação de escala. 
-Essas transformações alteram a posição e a orientação dos 
-objetos na imagem sem modificar suas características visuais 
-intrínsecas \cite{Paiano2024}. As transformações fotométricas, 
-por sua vez, modificam as propriedades de cor e iluminação 
-da imagem, incluindo variações de brilho, contraste, saturação 
-e adição de ruído. Essas técnicas são especialmente úteis 
-para treinar modelos mais robustos a variações nas condições 
+As técnicas de aumento de dados podem ser agrupadas em duas
+categorias principais. As transformações geométricas incluem
+operações como espelhamento horizontal e vertical, rotação,
+recorte aleatório (\textit{random crop}) e variação de escala.
+Essas transformações alteram a posição e a orientação dos
+objetos na imagem sem modificar suas características visuais
+intrínsecas \cite{Situ2023}. As transformações fotométricas,
+por sua vez, modificam as propriedades de cor e iluminação
+da imagem, incluindo variações de brilho, contraste, saturação
+e adição de ruído. Essas técnicas são especialmente úteis
+para treinar modelos mais robustos a variações nas condições
 de captura \cite{Situ2023}.
 
-Em cenários com conjuntos de dados reduzidos, o aumento 
-de dados desempenha um papel crítico na prevenção de 
-\textit{overfitting}. Ao aumentar a diversidade efetiva do 
-conjunto de treinamento, essa estratégia reduz a dependência 
-do modelo em relação a padrões específicos dos exemplos 
-disponíveis, favorecendo a generalização \cite{Paiano2024}. 
-No contexto do presente trabalho, técnicas de aumento de 
-dados serão incorporadas ao pipeline experimental como 
-uma das estratégias avaliadas no estudo de ablação, 
-permitindo quantificar seu impacto isolado no desempenho 
+Em cenários com conjuntos de dados reduzidos, o aumento
+de dados desempenha um papel crítico na prevenção de
+\textit{overfitting}. Ao aumentar a diversidade efetiva do
+conjunto de treinamento, essa estratégia reduz a dependência
+do modelo em relação a padrões específicos dos exemplos
+disponíveis, favorecendo a generalização \cite{Chen2021}.
+No contexto do presente trabalho, técnicas de aumento de
+dados serão incorporadas ao pipeline experimental como
+uma das estratégias avaliadas no estudo de ablação,
+permitindo quantificar seu impacto individual e combinado no desempenho
 do modelo.
 
 % ---------------------------------------------------------------
-\subsection{Pré-processamento Fotométrico}
+\subsection{Pré-processamento fotométrico e realce de superfície}
 \label{subsec:fotometria}
 
-A qualidade das imagens de entrada é um fator determinante 
-para o desempenho de modelos de visão computacional aplicados 
-à inspeção visual. Em condições reais de captura, variações 
-de iluminação, sombras e inconsistências do sensor da câmera 
-introduzem ruídos visuais que podem obscurecer defeitos 
-críticos e comprometer a extração de características relevantes 
+A qualidade das imagens de entrada é um fator determinante
+para o desempenho de modelos de visão computacional aplicados
+à inspeção visual. Em condições reais de captura, variações
+de iluminação, sombras, reflexos e inconsistências do sensor
+podem introduzir ruídos visuais que dificultam a identificação
+de defeitos sutis e comprometem a extração de características
+relevantes pelos modelos de aprendizado profundo
 \cite{Warren2026}.
 
-\citeonline{Warren2026} denominam esse fenômeno de 
-\textit{Shadow Problem}: inconsistências de brilho causadas 
-pela geometria do equipamento de captura, pelo ângulo da 
-câmera e por reflexos ambientais. Para mitigar esse problema, 
-os autores implementam a técnica de 
-\textit{Flat Field Correction} (FFC), um método de 
-pré-processamento amplamente utilizado em imageamento 
-científico para normalizar a iluminação espacial e a 
-sensibilidade por pixel do sensor. O processo consiste na 
-captura de imagens de referência com uma superfície branca 
-uniforme sob as mesmas condições de iluminação utilizadas 
-para as imagens do objeto, gerando uma matriz de correção 
-que é aplicada a cada imagem de entrada por multiplicação 
-elemento a elemento.
+No contexto de cartas colecionáveis, esse problema torna-se
+ainda mais relevante devido à presença de superfícies
+reflexivas e holográficas (\textit{foil}), que podem intensificar
+variações locais de brilho e mascarar imperfeições físicas.
+\citeonline{Warren2026} denominam esse fenômeno de
+\textit{Shadow Problem}, associado a inconsistências de brilho
+causadas pela geometria do equipamento de captura, pelo ângulo
+da câmera e por reflexos ambientais. Para mitigar esse efeito,
+os autores empregam \textit{Flat Field Correction} (FFC), uma
+técnica de normalização de iluminação baseada em imagens de
+referência capturadas sob condições controladas.
 
-Os resultados demonstram que a FFC reduz a variância da intensidade das 
-imagens em aproximadamente 99,97\%, eliminando artefatos 
-de iluminação e preservando os detalhes reais da superfície 
-da carta. Essa normalização é especialmente relevante para 
-cartas TCG, cujas superfícies holográficas (\textit{foil}) 
-são particularmente sensíveis a variações de iluminação, 
-podendo gerar reflexos que mascaram defeitos ou introduzem 
-falsos positivos nos modelos de detecção. No presente 
-trabalho, técnicas de pré-processamento fotométrico serão 
-incorporadas ao pipeline experimental como uma das 
-estratégias avaliadas no estudo de ablação.
+Embora a FFC represente uma abordagem específica de correção
+fotométrica, o presente trabalho não assume a implementação
+desse mesmo procedimento. Neste estudo, o termo
+pré-processamento fotométrico refere-se ao uso de imagens
+fotométricas derivadas, fornecidas pela empresa parceira,
+geradas a partir das imagens originais das cartas com o objetivo
+de realçar variações locais de textura, relevo, contorno e
+possíveis irregularidades superficiais. Essas imagens apresentam
+aspecto semelhante a mapas de relevo ou gradiente, favorecendo
+a visualização de defeitos que podem ser pouco evidentes na
+imagem RGB convencional.
+
+Dessa forma, as imagens fotométricas derivadas serão
+incorporadas ao pipeline experimental como uma representação
+alternativa da entrada visual. A comparação entre modelos
+treinados com imagens RGB convencionais e modelos treinados
+com imagens fotométricas permitirá investigar se
+esse tipo de realce contribui para a detecção de defeitos em
+cartas Pokémon TCG em um cenário com baixo volume de dados.
+
+
+\subsection{Estudo de Ablação}
+\label{subsec:ablacao}
+
+O estudo de ablação é uma estratégia experimental utilizada para
+avaliar a contribuição de componentes específicos de um modelo
+ou \textit{pipeline}. Em redes neurais profundas, esse tipo de estudo
+consiste em medir o desempenho do modelo após a remoção ou alteração
+de determinados componentes, permitindo compreender a contribuição
+relativa desses elementos para o desempenho geral \cite{Sheikholeslami2021}.
+Em vez de analisar apenas o desempenho de uma configuração final completa,
+a ablação compara diferentes versões do experimento, adicionando, removendo
+ou modificando elementos de forma controlada. Dessa forma, torna-se possível
+identificar quais componentes efetivamente contribuem para a melhoria do
+desempenho e quais apresentam impacto reduzido ou dependente do contexto.
+
+Em modelos de detecção de objetos baseados em YOLO, esse tipo de análise é
+especialmente relevante para avaliar estratégias de treinamento e adaptação
+de modelos pré-treinados. \citeonline{Dobrzycki2025} investigaram diferentes
+configurações de \textit{transfer learning} em arquiteturas 
+YOLOv8 e YOLOv10, comparando treinamento do zero, 
+\textit{fine-tuning} completo e congelamento parcial de 
+camadas (\textit{layer freezing}). Os autores demonstraram 
+que não há uma estratégia universalmente superior, uma vez 
+que o desempenho depende das características do conjunto de 
+dados, do grau de desbalanceamento, da complexidade visual e 
+dos recursos computacionais disponíveis. No presente trabalho, 
+o fine-tuning será aplicado sem congelamento de camadas, 
+concentrando a análise comparativa nas estratégias de 
+preparação dos dados e pré-processamento.
+
 
 % ---------------------------------------------------------------
 \subsection{Métricas de Avaliação}
 \label{subsec:metricas}
 
-A avaliação de modelos de detecção de objetos requer métricas 
-que considerem simultaneamente a acurácia de classificação 
-e a qualidade de localização espacial \cite{Ramos2025}. 
-As métricas fundamentais são a Precisão (\textit{Precision}) 
-e a Revocação (\textit{Recall}), definidas respectivamente 
+A avaliação de modelos de detecção de objetos requer métricas
+que considerem simultaneamente a acurácia de classificação
+e a qualidade de localização espacial \cite{Ramos2025}.
+As métricas fundamentais são a Precisão (\textit{Precision})
+e a Revocação (\textit{Recall}), definidas respectivamente
 como:
 
 \begin{equation}
@@ -765,41 +923,41 @@ como:
     \text{Recall} = \frac{TP}{TP + FN}
 \end{equation}
 
-onde TP são os verdadeiros positivos, FP os falsos positivos 
-e FN os falsos negativos \cite{Paiano2024}. A Precisão mede 
-a proporção de detecções corretas entre todas as detecções 
-realizadas, enquanto a Revocação mede a proporção de objetos 
-reais que foram corretamente detectados. O F1-\textit{score} 
-combina ambas as métricas em um único valor por meio da 
-média harmônica \cite{Paiano2024}:
+onde TP são os verdadeiros positivos, FP os falsos positivos
+e FN os falsos negativos \cite{Ramos2025}. A Precisão mede
+a proporção de detecções corretas entre todas as detecções
+realizadas, enquanto a Revocação mede a proporção de objetos
+reais que foram corretamente detectados. O F1-\textit{score}
+combina ambas as métricas em um único valor por meio da
+média harmônica \cite{Ramos2025}:
 
 \begin{equation}
     F1 = 2 \cdot \frac{\text{Precision} \times \text{Recall}}
     {\text{Precision} + \text{Recall}}
 \end{equation}
 
-A métrica principal para avaliação de detectores de objetos 
-é o \textit{mean Average Precision} (mAP), que resume o 
-desempenho do modelo ao calcular a média das precisões médias 
-(\textit{Average Precision} -- AP) para cada classe 
-\cite{Ramos2025}. A AP de uma classe é calculada como a área 
-sob a curva precisão-revocação, que varia conforme o limiar 
-de confiança das predições. O mAP é então a média das APs 
-sobre todas as classes \cite{Paiano2024}:
+A métrica principal para avaliação de detectores de objetos
+é o \textit{mean Average Precision} (mAP), que resume o
+desempenho do modelo ao calcular a média das precisões médias
+(\textit{Average Precision} -- AP) para cada classe
+\cite{Ramos2025}. A AP de uma classe é calculada como a área
+sob a curva precisão-revocação, que varia conforme o limiar
+de confiança das predições. O mAP é então a média das APs
+sobre todas as classes \cite{Ramos2025}:
 
 \begin{equation}
     \text{mAP} = \frac{1}{N} \sum_{i=1}^{N} AP_i
 \end{equation}
 
-onde $N$ é o número de classes. Duas variantes são 
-frequentemente reportadas na literatura: o mAP@0.5, que 
-utiliza um limiar de IoU de 0,5 para classificar predições 
-como TP, e o mAP@0.5:0.95, que calcula a média sobre 
-múltiplos limiares de IoU entre 0,5 e 0,95 \cite{Ramos2025}. 
-No presente trabalho, o estudo de ablação utilizará o 
-mAP@0.5 como métrica principal de comparação entre as 
-diferentes configurações experimentais, complementado por 
-Precision, Recall e F1-\textit{score} para uma análise 
+onde $N$ é o número de classes. Duas variantes são
+frequentemente reportadas na literatura: o mAP@0.5, que
+utiliza um limiar de IoU de 0,5 para classificar predições
+como TP, e o mAP@0.5:0.95, que calcula a média sobre
+múltiplos limiares de IoU entre 0,5 e 0,95 \cite{Ramos2025}.
+No presente trabalho, o estudo de ablação utilizará o
+mAP@0.5 como métrica principal de comparação entre as
+diferentes configurações experimentais, complementado por
+Precision, Recall e F1-\textit{score} para uma análise
 mais granular do desempenho de cada estratégia.
 
 % ---------------------------------------------------------------
@@ -835,11 +993,11 @@ Uma tabela comparativa ajuda a sintetizar as diferenças entre os trabalhos:
         \midrule
         Objetivo & Graduação automática de cantos & Sistema híbrido de grading completo & Comparação de YOLO + TL para defeitos & Comparação de estratégias em low-data para cartas TCG \\
         \midrule
-        Tecnologia & DenseNet201 + TL + calibração & OpenCV + CNN + YOLOv8-OBB & YOLO\_v2 + 11 CNNs pré-treinadas + TL & YOLO + TL + augmentation + pré-processamento \\
+        Tecnologia & DenseNet201 + TL + calibração & OpenCV + CNN + YOLOv8-OBB & YOLO\_v2 + 11 CNNs pré-treinadas + TL & YOLO + TL + augmentation + imagens fotométricas derivadas \\
         \midrule
         Validação & Acurácia e calibração de confiança & Acurácia, localização e consistência de grading & Precisão, tempo computacional e IoU & Precisão, recall, F1-score e mAP \\
         \midrule
-        Limitação & Restrito a cantos e dataset pequeno & Dataset grande e infraestrutura proprietária & Domínio diferente do problema de cartas & --- \\
+        Limitação & Restrito a cantos e dataset pequeno & Dataset grande e infraestrutura proprietária & Domínio diferente do problema de cartas & Dataset restrito a 88 cartas e a um único modelo (YOLOv8), sem validação em conjuntos externos \\
         \bottomrule
     \end{tabular}
     \legend{Fonte: Elaborado pelo autor (2026)}
@@ -880,12 +1038,49 @@ de treinamento em contexto de dados limitados.
 \subsection{Organização e preparação do conjunto de dados}
 \label{subsec:dados}
 
-A primeira etapa do desenvolvimento consistirá na organização e preparação 
-do conjunto de dados. Nessa fase, as imagens serão revisadas quanto à qualidade, 
-padronizadas em nomenclatura e estrutura de diretórios, e convertidas para o 
-formato de anotação compatível com o YOLOv8. Caso necessário, também será feita 
-a revisão das anotações existentes, buscando garantir consistência entre as 
-classes de defeitos consideradas e as respectivas caixas delimitadoras.
+A primeira etapa do desenvolvimento consistirá na organização e preparação
+do conjunto de dados. Nessa fase, as imagens serão revisadas quanto à qualidade,
+padronizadas em nomenclatura e estrutura de diretórios, e convertidas para o
+formato de anotação compatível com o YOLOv8.
+
+Além das imagens RGB convencionais, que preservam a aparência visual original
+das cartas, o conjunto fornecido pela empresa parceira também contém imagens
+fotométricas derivadas. Essas imagens foram geradas a partir das cartas com o
+objetivo de realçar variações locais de textura, relevo, contorno e possíveis
+irregularidades superficiais. Dessa forma, elas serão tratadas neste trabalho
+como uma representação visual alternativa, voltada ao realce de defeitos sutis
+que podem ser menos evidentes na imagem convencional.
+
+A Figura~\ref{fig:rgb_fotometrica} apresenta um exemplo das duas representações
+disponíveis no conjunto de dados. A imagem RGB convencional será utilizada como
+representação de referência, enquanto a imagem fotométrica derivada será avaliada
+em uma das configurações do estudo de ablação, permitindo investigar se esse tipo
+de realce contribui para o desempenho do detector.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imagens/carta_rgb.png}
+
+        \vspace{0.2cm}
+        {\small (a) Imagem RGB convencional}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imagens/carta_fotometrica.png}
+
+        \vspace{0.2cm}
+        {\small (b) Imagem fotométrica derivada}
+    \end{minipage}
+
+    \caption{Exemplo de carta do conjunto de dados nas duas representações disponíveis: imagem RGB convencional e imagem fotométrica derivada.}
+    \fonte{Imagem fornecida por empresa parceira, 2026.}
+    \label{fig:rgb_fotometrica}
+\end{figure}
+
 
 Após essa etapa, o conjunto será particionado em subconjuntos de treino, 
 validação e teste. Como se trata de um cenário com quantidade reduzida de 
@@ -894,64 +1089,142 @@ possível, a representatividade das classes presentes em cada subconjunto.
 Além disso, o mesmo particionamento será mantido em todos os experimentos, 
 a fim de garantir comparabilidade entre as configurações avaliadas.
 
+Considerando o baixo volume de dados disponível e a dificuldade 
+associada à anotação de defeitos pequenos e visualmente sutis em cartas TCG,
+a modelagem inicial do problema será realizada com uma única classe de interesse,
+denominada \textit{defeito}. Em inspeção visual, a detecção de defeitos pode 
+envolver informações como categoria, localização, contorno e tamanho da imperfeição
+\cite{Chen2021}; no entanto, neste trabalho, opta-se por concentrar a avaliação 
+na localização das regiões defeituosas, sem distinguir inicialmente os tipos 
+específicos de dano.
+
+Essa decisão metodológica reduz a granularidade do problema, evita a fragmentação
+do conjunto de treinamento em múltiplas classes com poucos exemplos e favorece 
+maior consistência nas anotações. Embora o foco principal de \citeonline{Wang2024}
+seja a ampliação de dados para detecção multiclasse em imagens infravermelhas,
+os autores também estendem a avaliação para bases públicas de detecção com classe
+única em cenários de poucos dados, indicando a viabilidade desse tipo de formulação
+quando o objetivo principal é localizar objetos ou regiões de interesse. Assim,
+no presente trabalho, o modelo não terá como objetivo diferenciar categorias 
+como risco, dobra ou desgaste, mas sim identificar regiões da carta que 
+apresentem indícios visuais de defeito.
+
+
 \subsection{Modelo base}
 \label{subsec:modelo_base}
 
-Como modelo de detecção será utilizada a versão YOLOv8, selecionada por seu 
-equilíbrio entre eficiência computacional e desempenho em tarefas de detecção 
-de objetos. O modelo base servirá como referência para o estudo de ablação, 
-permitindo avaliar de forma incremental a contribuição de cada estratégia 
-de treinamento.
+Como modelo de detecção será utilizada a versão YOLOv8, selecionada por seu
+equilíbrio entre eficiência computacional e desempenho em tarefas de detecção
+de objetos. Considerando que o conjunto de dados disponível é reduzido e que
+a classe de interesse, denominada \textit{defeito}, não faz parte das classes
+originais do dataset COCO, todas as configurações experimentais partirão de
+pesos pré-treinados e serão ajustadas ao domínio das cartas por meio de
+\textit{fine-tuning}.
 
-Inicialmente, será definida uma configuração base do YOLOv8 com parâmetros 
-fixos de treinamento. Entre os parâmetros mantidos constantes ao longo dos 
-experimentos estão resolução de entrada, número de épocas, taxa de aprendizado, 
-tamanho do lote e critério de parada. Os valores finais desses hiperparâmetros 
-serão estabelecidos a partir de testes preliminares, mas permanecerão iguais 
-em todas as configurações experimentais para que a comparação entre elas seja válida.
+Neste trabalho, a configuração base (\textit{baseline}) corresponderá ao
+YOLOv8 com \textit{transfer learning} treinado sobre as imagens RGB
+convencionais, sem aumento de dados adicional e sem uso das imagens
+fotométricas derivadas. Essa configuração servirá como referência para avaliar
+a contribuição individual e combinada do aumento de dados.
+
+Os demais experimentos partirão dessa configuração de referência e incorporarão
+novas estratégias de forma controlada. Para garantir comparabilidade entre os
+resultados, serão mantidos fixos, entre as configurações, parâmetros como
+resolução de entrada, número de épocas, taxa de aprendizado e tamanho do lote,
+cujos valores serão definidos em testes preliminares antes da execução do estudo
+de ablação.
+
+\subsection{Hiperparâmetros de treinamento}
+\label{subsec:hiperparametros}
+
+Os hiperparâmetros de treinamento compreendem as configurações
+do processo de otimização que não são aprendidas automaticamente
+pelo modelo, sendo definidas pelo pesquisador antes do início
+do treinamento \cite{Dobrzycki2025}. No presente trabalho, os
+principais hiperparâmetros considerados são: taxa de aprendizado
+(\textit{learning rate}), número de épocas, tamanho do lote
+(\textit{batch size}), resolução de entrada das imagens e
+critério de parada antecipada (\textit{early stopping}).
+
+Os valores finais desses hiperparâmetros serão estabelecidos
+por meio de testes preliminares realizados sobre a configuração
+base antes da execução do estudo de ablação. Uma vez definidos,
+os mesmos valores serão mantidos fixos em todas as quatro
+configurações experimentais. Essa decisão é essencial para
+garantir que as diferenças de desempenho observadas entre as
+configurações sejam atribuíveis exclusivamente às estratégias
+avaliadas --- tipo de imagem e uso de aumento de dados ---
+e não a variações no processo de otimização \cite{Dobrzycki2025}.
+
+Como ponto de partida para os testes preliminares, serão
+adotados os valores padrão recomendados pela biblioteca
+Ultralytics para o YOLOv8, ajustando-os conforme necessário
+para o tamanho reduzido do conjunto de dados disponível.
 
 \subsection{Estratégias de treinamento avaliadas}
 \label{subsec:estrategias}
 
-O trabalho comparará três estratégias principais de treinamento em cenário 
-de poucos dados: \textit{transfer learning}, aumento de dados 
-(\textit{data augmentation}) e pré-processamento fotométrico.
+O trabalho comparará quatro configurações experimentais baseadas
+em YOLOv8 com \textit{transfer learning}, variando de forma
+controlada duas estratégias: o uso de aumento de dados
+(\textit{data augmentation}) e o tipo de representação visual
+da entrada, que pode ser a imagem RGB convencional ou a imagem
+fotométrica derivada fornecida pela empresa parceira. Esse
+desenho permite avaliar a contribuição individual e combinada
+de cada estratégia no desempenho do detector em um cenário
+com baixo volume de dados.
 
-O \textit{transfer learning} será empregado por meio do ajuste fino 
-(\textit{fine-tuning}) de pesos pré-treinados, buscando aproveitar 
-representações visuais previamente aprendidas em bases de larga escala. 
-Essa estratégia será comparada à configuração base para verificar em que 
-medida o uso de pesos pré-treinados melhora o desempenho do detector em 
-um conjunto reduzido de imagens.
+O \textit{transfer learning} será empregado em todas as configurações por meio 
+do ajuste fino (\textit{fine-tuning}) de pesos pré-treinados, buscando aproveitar 
+representações visuais previamente aprendidas em bases de larga escala. Essa 
+decisão é justificada pelo baixo volume de dados disponível e pela necessidade 
+de adaptar o detector à classe de interesse \textit{defeito}, inexistente nas 
+classes originais do COCO. Dessa forma, o \textit{transfer learning} não será 
+tratado como uma variável comparativa isolada no estudo de ablação, mas como 
+a base comum de treinamento sobre a qual serão avaliados o aumento de dados 
+e o uso de imagens fotométricas derivadas.
 
 O aumento de dados será utilizado para ampliar artificialmente a variabilidade 
 do conjunto de treinamento. Serão consideradas transformações compatíveis com 
 o problema, como ajustes geométricos e fotométricos, desde que preservem a 
 interpretação visual dos defeitos e não distorçam suas características essenciais.
 
-Já o pré-processamento fotométrico terá como objetivo reduzir o impacto de 
-variações de iluminação e reflexos presentes nas imagens, especialmente em 
-cartas com superfícies holográficas. Essa etapa buscará tornar as imagens mais 
-consistentes do ponto de vista visual antes do treinamento, contribuindo para 
-a extração de características mais estáveis pelo modelo.
+Já o uso das imagens fotométricas derivadas será avaliado como uma representação 
+alternativa de entrada, com o objetivo de verificar se o realce de textura, relevo 
+e irregularidades superficiais contribui para a detecção de defeitos visuais. 
+Como essas imagens são fornecidas já processadas pela empresa parceira, este 
+trabalho não propõe a implementação de uma técnica fotométrica específica, mas 
+analisa experimentalmente o impacto dessa representação no desempenho do YOLOv8.
 
 \subsection{Estudo de ablação}
 \label{subsec:ablacao}
 
-A comparação entre as estratégias será realizada por meio de um estudo de 
-ablação cumulativo. Nesse tipo de desenho experimental, parte-se de uma 
-configuração base e, em seguida, novas estratégias são incorporadas de forma 
-progressiva, permitindo observar a contribuição individual e cumulativa de 
-cada uma delas.
+A comparação entre as estratégias será realizada por meio de um
+estudo de ablação com desenho fatorial. Nesse tipo de desenho,
+duas variáveis independentes, o uso de aumento de dados e o
+tipo de representação visual da entrada são combinadas de
+forma controlada, permitindo avaliar a contribuição individual
+e conjunta de cada estratégia no desempenho do detector.
 
-Serão consideradas quatro configurações experimentais principais:
+Serão consideradas quatro configurações experimentais:
 
 \begin{enumerate}
-    \item YOLOv8 base;
-    \item YOLOv8 com \textit{transfer learning};
-    \item YOLOv8 com \textit{transfer learning} e aumento de dados;
-    \item YOLOv8 com \textit{transfer learning}, aumento de dados e pré-processamento fotométrico.
+    \item YOLOv8 com \textit{transfer learning} em imagens RGB;
+    \item YOLOv8 com \textit{transfer learning} e aumento de dados 
+    em imagens RGB;
+    \item YOLOv8 com \textit{transfer learning} em imagens 
+    fotométricas derivadas;
+    \item YOLOv8 com \textit{transfer learning}, aumento de dados 
+    e imagens fotométricas derivadas.
 \end{enumerate}
+
+A configuração 1 serve como referência do estudo de ablação,
+correspondendo ao cenário mais simples: fine-tuning com imagens
+RGB sem aumento de dados. As demais configurações introduzem
+variações controladas sobre essa referência, mantendo fixos
+os hiperparâmetros de treinamento em todas as configurações
+para garantir que as diferenças de desempenho observadas sejam
+atribuíveis exclusivamente às estratégias avaliadas.
 
 Esse desenho foi escolhido por ser compatível com o escopo do TCC1 e por 
 permitir uma análise clara da influência de cada estratégia em um contexto 
@@ -962,8 +1235,7 @@ contribuição principal do trabalho: a comparação entre estratégias de trein
 \subsection{Tecnologias e ferramentas}
 \label{subsec:ferramentas}
 
-A implementação será realizada em Python, linguagem amplamente utilizada em 
-projetos de visão computacional e aprendizado profundo. Para o treinamento do 
+A implementação será realizada em Python. Para o treinamento do 
 modelo, será utilizada a biblioteca oficial da família YOLOv8. O processamento 
 das imagens e as etapas de preparação do conjunto de dados poderão ser apoiados 
 por bibliotecas de manipulação de imagens e visão computacional, como OpenCV. 
@@ -1035,10 +1307,10 @@ O cronograma a seguir apresenta, no formato de diagrama de Gantt, as atividades 
         \ganttmilestone{Pipeline base validado}{7} \\
 
         \ganttgroup{Fase 3: Execução dos experimentos}{8}{13} \\
-        \ganttbar{Experimento 1: YOLOv8 base}{8}{8} \\
-        \ganttbar{Experimento 2: YOLOv8 + transfer learning}{9}{10} \\
-        \ganttbar{Experimento 3: YOLOv8 + transfer learning + augmentation}{10}{11} \\
-        \ganttbar{Experimento 4: YOLOv8 + transfer learning + augmentation + fotometria}{11}{12} \\
+        \ganttbar{Experimento 1: YOLOv8 + TL em imagens RGB}{8}{8} \\
+        \ganttbar{Experimento 2: YOLOv8 + TL + augmentation em RGB}{9}{10} \\
+        \ganttbar{Experimento 3: YOLOv8 + TL em imagens fotométrica}{10}{11} \\
+        \ganttbar{Experimento 4: YOLOv8 + TL + augmentation em fotométricas}{11}{12} \\
         \ganttbar{Consolidação e comparação dos resultados}{12}{13} \\
         \ganttmilestone{Estudo de ablação concluído}{13} \\
 
@@ -1049,15 +1321,6 @@ O cronograma a seguir apresenta, no formato de diagrama de Gantt, as atividades 
     \end{ganttchart}
     \legend{Fonte: Elaborado pelo autor (2026)}
 \end{figure}
-
-\textbf{Instruções para personalização do cronograma}:
-\begin{itemize}
-    \item Ajuste o número de semanas conforme o calendário acadêmico do semestre;
-    \item Modifique as atividades de acordo com as etapas do seu projeto;
-    \item Os marcos (\textit{milestones}) indicam entregas importantes --- adapte-os às datas de avaliação;
-    \item As setas entre atividades indicam dependências --- uma atividade só inicia após a conclusão da anterior;
-    \item Utilize o diagrama como ferramenta de acompanhamento: atualize-o a cada reunião com o orientador.
-\end{itemize}
 
 % ---------------------------------------------------------------
 % ELEMENTOS PÓS-TEXTUAIS
