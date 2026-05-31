@@ -1082,12 +1082,18 @@ de realce contribui para o desempenho do detector.
 \end{figure}
 
 
-Após essa etapa, o conjunto será particionado em subconjuntos de treino, 
-validação e teste. Como se trata de um cenário com quantidade reduzida de 
-amostras, o particionamento será feito de modo a preservar, na medida do 
-possível, a representatividade das classes presentes em cada subconjunto. 
-Além disso, o mesmo particionamento será mantido em todos os experimentos, 
-a fim de garantir comparabilidade entre as configurações avaliadas.
+O particionamento será realizado por carta, de modo que a frente 
+e o verso de um mesmo exemplar pertençam sempre ao mesmo subconjunto.
+Cada configuração experimental utiliza 176 imagens, correspondentes à
+frente e ao verso das 88 cartas disponíveis. As configurações baseadas
+em imagens RGB utilizam as representações convencionais, enquanto as 
+configurações fotométricas utilizam as representações derivadas correspondentes.
+Seguindo uma proporção de aproximadamente 80%, 10% e 10%, a divisão resulta em
+aproximadamente 140 imagens para treinamento, 18 para validação e 18 para
+teste em cada configuração. O mesmo particionamento de cartas será mantido
+fixo em todas as configurações experimentais, garantindo comparabilidade 
+direta entre os resultados obtidos \cite{Wang2022, Chen2021}.
+
 
 Considerando o baixo volume de dados disponível e a dificuldade 
 associada à anotação de defeitos pequenos e visualmente sutis em cartas TCG,
@@ -1097,6 +1103,20 @@ envolver informações como categoria, localização, contorno e tamanho da impe
 \cite{Chen2021}; no entanto, neste trabalho, opta-se por concentrar a avaliação 
 na localização das regiões defeituosas, sem distinguir inicialmente os tipos 
 específicos de dano.
+
+As anotações do conjunto de dados foram fornecidas pela empresa
+parceira na forma de regiões delimitadas por avaliadores
+especializados em graduação de cartas TCG, indicando as áreas
+da carta onde defeitos visuais foram identificados e confirmados
+durante o processo de inspeção profissional. Esse tipo de
+anotação, produzida por especialistas do domínio com critérios
+técnicos estabelecidos, é considerado o padrão de referência
+em tarefas de detecção de defeitos visuais
+\cite{Nahar2025, Warren2026}. As regiões anotadas foram
+convertidas para o formato de caixas delimitadoras compatível
+com o YOLOv8, associadas à classe única \textit{defeito},
+preservando a localização espacial das imperfeições
+identificadas pelos avaliadores.
 
 Essa decisão metodológica reduz a granularidade do problema, evita a fragmentação
 do conjunto de treinamento em múltiplas classes com poucos exemplos e favorece 
@@ -1146,15 +1166,15 @@ principais hiperparâmetros considerados são: taxa de aprendizado
 (\textit{batch size}), resolução de entrada das imagens e
 critério de parada antecipada (\textit{early stopping}).
 
-Os valores finais desses hiperparâmetros serão estabelecidos
+Os valores finais desses hiperparâmetros serão estabelecidos 
 por meio de testes preliminares realizados sobre a configuração
 base antes da execução do estudo de ablação. Uma vez definidos,
-os mesmos valores serão mantidos fixos em todas as quatro
-configurações experimentais. Essa decisão é essencial para
-garantir que as diferenças de desempenho observadas entre as
-configurações sejam atribuíveis exclusivamente às estratégias
-avaliadas --- tipo de imagem e uso de aumento de dados ---
-e não a variações no processo de otimização \cite{Dobrzycki2025}.
+os mesmos valores serão mantidos fixos em todas as quatro configurações
+experimentais. Essa decisão é essencial para garantir que as diferenças
+de desempenho observadas entre as configurações sejam atribuíveis
+exclusivamente às estratégias avaliadas, como o tipo de imagem e
+o uso de aumento de dados, e não a variações no processo de otimização.
+\cite{Dobrzycki2025}.
 
 Como ponto de partida para os testes preliminares, serão
 adotados os valores padrão recomendados pela biblioteca
