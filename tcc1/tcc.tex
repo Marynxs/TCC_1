@@ -36,6 +36,7 @@
 \usepackage{pgfgantt}               % Diagramas de Gantt
 \usepackage[brazilian,hyperpageref]{backref}  % Páginas com citações
 \usepackage[alf]{abntex2cite}       % Citações ABNT
+\usepackage{caption}
 
 % ---------------------------------------------------------------
 % CONFIGURAÇÕES DO PDF
@@ -119,26 +120,35 @@
 % ---------------------------------------------------------------
 \begin{resumo}
 Este documento apresenta a proposta inicial do Trabalho de Conclusão 
-de Curso (TCC1) desenvolvido no SENAC Santo Amaro. O objetivo deste trabalho
-é comparar estratégias de treinamento com YOLOv8 para detecção de defeitos 
-superficiais em cartas Pokémon TCG em cenários de baixo volume de dados, 
-identificando quais abordagens apresentam melhor desempenho com conjuntos
-limitados de imagens anotadas. A justificativa baseia-se na escassez de 
-bases de dados públicas anotadas por especialistas e no alto custo de rotulagem,
-o que limita o treinamento de modelos tradicionais e motiva o uso de técnicas 
-específicas para poucos exemplos (\textit{small dataset}). Como contexto de aplicação, destaca-se o processo 
-de graduação de cartas, atualmente realizado de forma manual e sujeito à subjetividade. 
-A revisão bibliográfica abrange visão computacional, inspeção visual automatizada, Deep
-Learning, \textit{transfer learning} e técnicas para treinamento com conjuntos limitados de imagens 
-anotadas. Como solução proposta, pretende-se implementar um pipeline de treinamento e avaliação utilizando
-o modelo YOLOv8, combinado com aumento de dados (\textit{data augmentation}) e com o uso de imagens fotométricas derivadas,
-comparando o impacto de diferentes estratégias de treinamento por meio de métricas quantitativas 
-em um \textit{dataset} real de 88 cartas fornecido por uma empresa brasileira especializada em graduação de cartas TCG.
+de Curso (TCC1) desenvolvido no SENAC Santo Amaro. O objetivo deste 
+trabalho é avaliar o impacto de diferentes estratégias de treinamento 
+aplicadas ao modelo YOLOv8 para detecção de defeitos superficiais em 
+cartas Pokémon TCG em cenários com baixo volume de dados, identificando 
+quais combinações apresentam melhor desempenho com conjuntos limitados 
+de imagens anotadas por especialistas. A justificativa baseia-se na 
+escassez de estudos que avaliem sistematicamente essas estratégias no 
+domínio de cartas colecionáveis, aliada ao alto custo de anotação e à 
+ausência de bases de dados públicas para esse contexto. Como solução 
+proposta, será implementado um pipeline experimental baseado em 
+YOLOv8s com \textit{fine-tuning} a partir de pesos pré-treinados no 
+dataset COCO, avaliado por meio de um estudo de ablação fatorial com 
+quatro configurações controladas que combinam aumento de dados 
+(\textit{data augmentation}) e uso de imagens fotométricas derivadas 
+geradas pelo autor via filtro emboss seguido de equalização 
+adaptativa de histograma (CLAHE) como representação alternativa de 
+entrada. O conjunto de dados é composto por 88 cartas fornecidas por 
+uma empresa brasileira especializada em graduação, totalizando 176 
+imagens por configuração experimental, com anotações produzidas por 
+avaliadores especializados. A avaliação adotará validação cruzada 
+estratificada em cinco dobras, com resultados reportados como média e 
+desvio padrão do mAP@0.5, Precisão, Revocação e F1-\textit{score} 
+sobre as cinco rodadas.
 
 \vspace{\onelineskip}
 
 \noindent
-\textbf{Palavras-chave}: Visão Computacional. Detecção de Defeitos. Pokémon TCG. Small Datasets. YOLOv8.
+\textbf{Palavras-chave}: Visão Computacional. Detecção de Defeitos. 
+Pokémon TCG. Small Datasets. YOLOv8. Pré-processamento Fotométrico.
 \end{resumo}
 
 % ---------------------------------------------------------------
@@ -224,7 +234,7 @@ de infraestrutura dedicada para viabilizar seus conjuntos de dados
 \cite{Nahar2025}.
 
 Pesquisadores já investigaram o uso de técnicas de visão computacional 
-para detecção de defeitos em cartas colecionáveis \cite{ Nahar2025}, porém ainda há uma carência de estudos que avaliem 
+para detecção de defeitos em cartas colecionáveis \cite{Nahar2025}, porém ainda há uma carência de estudos que avaliem 
 sistematicamente o impacto de diferentes estratégias de treinamento em 
 cenários com baixo volume de dados nesse domínio específico. Diante 
 disso, este trabalho propõe uma análise comparativa de estratégias de 
@@ -260,11 +270,9 @@ reflexos ambientais podem obscurecer defeitos reais ou gerar artefatos
 visuais interpretados erroneamente como danos \cite{Zheng2021}. Esse tipo 
 de não-uniformidade é amplamente reconhecido na área de visão 
 computacional industrial \cite{Zheng2021}. Para mitigar seu impacto sobre 
-a detecção de defeitos sutis, técnicas de realce de superfície baseadas 
-em filtragem de gradiente têm sido aplicadas como etapa de 
-pré-processamento, produzindo representações visuais que amplificam 
-variações locais de textura e relevo independentemente das condições 
-de iluminação \cite{Chen2021}.
+a detecção de defeitos sutis, técnicas de realce de contraste adaptativo têm 
+sido aplicadas como etapa de pré-processamento, amplificando variações 
+locais de intensidade independentemente das condições de iluminação \cite{Chen2021, Sawada2024}.
 
 O segundo desafio são os reflexos em superfícies holográficas 
 (\textit{foil}), presentes em cartas de maior raridade, que refletem 
@@ -368,6 +376,8 @@ Avaliar o desempenho de estratégias de treinamento aplicadas ao modelo YOLOv8 p
 
 \subsection{Objetivos Específicos}
 
+Para alcançar o objetivo geral, foram definidos os seguintes objetivos específicos:
+
 \begin{enumerate}
     \item Organizar e preparar um conjunto de dados de imagens de cartas 
     Pokémon TCG, adotando uma classe única de detecção denominada 
@@ -422,6 +432,7 @@ AND ``object detection'' AND ``small dataset'' AND ``performance evaluation''},
 \textit{``surface defect detection'' AND ``computer vision'' AND ``scratch'' OR ``wear''},
 \textit{``ablation study'' AND ``object detection'' AND ``transfer learning''},
 \textit{``COCO dataset'' AND ``object detection'' AND ``YOLO pretraining''},
+\textit{``emboss filter'' AND ``surface defect'' AND ``deep learning''},
 \textit{``YOLOv8'' AND ``defect detection'' AND ``transfer learning''} e
 \textit{``data augmentation'' AND ``small dataset'' AND ``object detection''}.
 
@@ -446,6 +457,8 @@ volume de dados, com ênfase em aplicações de visão computacional em domínio
 
 \section{Referencial teórico}
 \label{sec:referencial}
+
+Esta seção apresenta os principais conceitos teóricos necessários para fundamentar a proposta deste trabalho. São discutidos os fundamentos de \textit{Deep Learning}, Redes Neurais Convolucionais, visão computacional, inspeção visual automatizada, detecção de objetos, arquitetura YOLO, \textit{transfer learning}, aumento de dados, pré-processamento fotométrico, estudo de ablação, validação cruzada e métricas de avaliação. Esses conceitos sustentam a metodologia experimental adotada e permitem compreender as decisões técnicas envolvidas na comparação das estratégias de treinamento avaliadas.
 
 \subsection{Deep Learning e Redes Neurais Convolucionais}
 \label{subsec:dl_cnn}
@@ -823,31 +836,33 @@ A qualidade das imagens de entrada é um fator determinante para o
 desempenho de modelos de visão computacional aplicados à inspeção 
 visual. Em condições reais de captura, variações de iluminação, 
 sombras e reflexos podem introduzir ruídos visuais que dificultam 
-a identificação de defeitos sutis \cite{Zheng2021}. Para mitigar seu impacto sobre a detecção de defeitos sutis, técnicas 
-de realce de contraste adaptativo têm sido aplicadas como etapa de 
-pré-processamento, amplificando variações locais de intensidade 
-independentemente das condições de iluminação \cite{Chen2021, Jiang2023}.
+a identificação de defeitos sutis \cite{Zheng2021}. Para mitigar 
+esse efeito, técnicas de realce de superfície baseadas em filtragem 
+de gradiente são empregadas como etapa de pré-processamento, 
+amplificando variações locais de textura, relevo e contorno que 
+podem ser pouco evidentes na imagem RGB convencional \cite{Chen2021}.
 
-Entre essas técnicas, o \textit{Contrast Limited Adaptive Histogram 
-Equalization} (CLAHE) destaca-se por realizar o realce de forma 
-adaptativa por regiões da imagem, limitando a amplificação de ruído 
-e equilibrando a distribuição de brilho sem saturar regiões com 
-variações intensas de intensidade \cite{Jiang2023}. Embora o contexto 
-de aplicação seja distinto, \citeonline{Jiang2023} demonstram que 
-a aplicação de CLAHE como pré-processamento antes do treinamento de 
-detectores baseados em YOLO produz ganhos consistentes de mAP em 
-superfícies com variações irregulares de iluminação, princípio 
-diretamente aplicável ao presente trabalho, no qual superfícies 
-holográficas (\textit{foil}) introduzem reflexos intensos que 
-comprometem a visibilidade de defeitos sutis na imagem RGB convencional.
+No contexto da inspeção visual automatizada, a combinação de filtros 
+de gradiente direcional com técnicas de equalização de histograma 
+tem demonstrado melhorar a acurácia de extração de defeitos em 
+superfícies industriais. \citeonline{Sawada2024} propõem um método 
+de inspeção de superfícies pintadas que aplica filtro \textit{emboss} 
+seguido de equalização de histograma como pré-processamento, 
+demonstrando que essa combinação melhora a detecção de defeitos em 
+relação à abordagem convencional sem pré-processamento.
 
 No contexto deste trabalho, as imagens fotométricas derivadas serão 
-geradas pela aplicação de CLAHE sobre as imagens RGB originais das 
-cartas, utilizando a biblioteca OpenCV. Essa representação será 
+geradas pela aplicação sequencial do filtro emboss e do 
+\textit{Contrast Limited Adaptive Histogram Equalization} (CLAHE) 
+sobre as imagens RGB originais das cartas, utilizando a biblioteca 
+OpenCV. O filtro emboss produz uma representação em tons de cinza 
+que realça variações de relevo e textura superficial, enquanto o 
+CLAHE amplifica os detalhes finos do relevo resultante sem saturar 
+regiões homogêneas \cite{Jiang2023}. Essa representação será 
 incorporada ao pipeline experimental como entrada alternativa, 
-permitindo investigar se o realce adaptativo de contraste contribui 
-para a detecção de defeitos em cartas Pokémon TCG em cenário com 
-baixo volume de dados.
+permitindo investigar se o realce de gradiente direcional de 
+superfície contribui para a detecção de defeitos em cartas Pokémon 
+TCG em cenário com baixo volume de dados.
 
 
 \subsection{Estudo de Ablação}
@@ -1044,7 +1059,10 @@ Uma tabela comparativa ajuda a sintetizar as diferenças entre os trabalhos:
 Neste capítulo, apresenta-se a metodologia experimental proposta para o desenvolvimento do trabalho no TCC2, bem como o cronograma previsto para a execução das etapas planejadas.
 % ---------------------------------------------------------------
 \section{Metodologia experimental}
-\label{sec:solucao}
+\label{sec:metodologia_experimental}
+
+Esta seção descreve o protocolo metodológico adotado para avaliar as estratégias de treinamento propostas. São apresentados o processo de organização do conjunto de dados, a formulação da tarefa de detecção, o modelo base utilizado, os hiperparâmetros de treinamento, as configurações experimentais avaliadas e o procedimento de comparação dos resultados. O objetivo é garantir que os experimentos sejam conduzidos de forma controlada e comparável, permitindo analisar o impacto individual e combinado das estratégias investigadas.
+
 
 \subsection{Visão geral da proposta}
 \label{subsec:visao_geral}
@@ -1075,12 +1093,22 @@ do conjunto de dados. Nessa fase, as imagens serão revisadas quanto à qualidad
 padronizadas em nomenclatura e estrutura de diretórios, e convertidas para o
 formato de anotação compatível com o YOLOv8.
 
+As imagens do conjunto de dados apresentam resolução de 
+$1280 \times 1771$ pixels, 24 bits por pixel e 96 DPI, 
+capturadas em formato RGB. Para o treinamento do YOLOv8, 
+as imagens serão redimensionadas para a resolução de entrada 
+do modelo, definida nos testes preliminares previstos na 
+Seção~\ref{subsec:hiperparametros}, adotando 640$\times$640 pixels 
+como valor de referência inicial, conforme padrão da biblioteca 
+Ultralytics \cite{Dobrzycki2025}.
+
 Além das imagens RGB convencionais, que preservam a aparência visual original
-das cartas, o conjunto fornecido pela empresa parceira também contém imagens
-fotométricas derivadas. Essas imagens serão geradas pela aplicação de CLAHE sobre as imagens 
-RGB originais, com o objetivo de realçar variações locais de contraste 
-e possíveis irregularidades superficiais, tornando defeitos sutis mais 
-evidentes do que na imagem convencional \cite{Jiang2023}.
+das cartas, também será construída uma representação fotométrica derivada a
+partir dessas imagens. Essa representação será gerada pela aplicação sequencial de filtro 
+de gradiente direcional (\textit{emboss}) e equalização adaptativa 
+de histograma (CLAHE) sobre as imagens RGB originais, com o objetivo 
+de realçar variações locais de textura, relevo e possíveis 
+irregularidades superficiais \cite{Sawada2024, Chen2021}.
 
 A Figura~\ref{fig:rgb_fotometrica} apresenta um exemplo das duas representações
 disponíveis no conjunto de dados. A imagem RGB convencional será utilizada como
@@ -1108,7 +1136,7 @@ de realce contribui para o desempenho do detector.
     \end{minipage}
 
     \caption{Exemplo de carta do conjunto de dados nas duas representações disponíveis: imagem RGB convencional e imagem fotométrica derivada.}
-    \fonte{Imagem fornecida por empresa parceira, 2026.}
+    \fonte{Imagem RGB fornecida por empresa parceira; imagem fotométrica elaborada pelo autor a partir da imagem original (2026).}
     \label{fig:rgb_fotometrica}
 \end{figure}
 
@@ -1172,8 +1200,6 @@ por imagem. Essa análise permitirá identificar eventuais desequilíbrios
 entre imagens com e sem defeitos anotados — situação comum em datasets 
 de inspeção visual \cite{Chen2021} — e orientar ajustes nos testes 
 preliminares caso necessário.
-
-
 
 \subsection{Modelo base}
 \label{subsec:modelo_base}
@@ -1263,7 +1289,7 @@ em YOLOv8 com \textit{transfer learning}, variando de forma
 controlada duas estratégias: o uso de aumento de dados
 (\textit{data augmentation}) e o tipo de representação visual
 da entrada, que pode ser a imagem RGB convencional ou a imagem
-fotométrica derivada fornecida pela empresa parceira. Esse
+fotométrica derivada gerada. Esse
 desenho permite avaliar a contribuição individual e combinada
 de cada estratégia no desempenho do detector em um cenário
 com baixo volume de dados.
@@ -1283,12 +1309,13 @@ do conjunto de treinamento. Serão consideradas transformações compatíveis co
 o problema, como ajustes geométricos e fotométricos, desde que preservem a 
 interpretação visual dos defeitos e não distorçam suas características essenciais.
 
-Já o uso das imagens fotométricas derivadas será avaliado como uma representação 
-alternativa de entrada, com o objetivo de verificar se o realce de textura, relevo 
-e irregularidades superficiais contribui para a detecção de defeitos visuais. 
-As imagens fotométricas derivadas serão geradas pela aplicação de 
-CLAHE sobre as imagens RGB originais, utilizando a biblioteca OpenCV, 
-com parâmetros definidos nos testes preliminares previstos na 
+Já o uso das imagens fotométricas derivadas será avaliado como uma 
+representação alternativa de entrada, com o objetivo de verificar se 
+o realce de textura, relevo e irregularidades superficiais contribui 
+para a detecção de defeitos visuais. Essas imagens serão geradas pela 
+aplicação sequencial de filtro emboss e CLAHE sobre as imagens RGB 
+originais, utilizando a biblioteca OpenCV, com parâmetros definidos 
+nos testes preliminares previstos na 
 Seção~\ref{subsec:hiperparametros}.
 
 \subsection{Estudo de ablação}
@@ -1370,20 +1397,22 @@ no cenário de dados limitados considerado neste trabalho.
 \section{Cronograma de trabalho}
 \label{sec:cronograma}
 
-O cronograma a seguir apresenta, no formato de diagrama de Gantt, as atividades previstas para o desenvolvimento do TCC2, distribuídas ao longo das semanas do semestre.
+O cronograma de trabalho organiza as principais atividades previstas para o desenvolvimento do TCC2, contemplando desde a preparação final do conjunto de dados até a execução dos experimentos, análise dos resultados e redação da versão final do trabalho. As etapas foram distribuídas de forma sequencial, considerando a dependência entre a organização dos dados, o treinamento dos modelos, a comparação das configurações experimentais e a consolidação dos resultados obtidos.
 
 \begin{figure}[htb]
     \centering
-    \caption{Cronograma de atividades -- Diagrama de Gantt}
+    \captionsetup{justification=centering}
+    \caption{Cronograma de atividades do TCC2 para o segundo semestre de 2026 -- Diagrama de Gantt}
     \label{fig:gantt}
+
     \begin{ganttchart}[
         hgrid,
         vgrid,
-        x unit=0.72cm,
+        x unit=0.68cm,
         y unit title=0.6cm,
-        y unit chart=0.9cm,
+        y unit chart=1cm,
         title height=1,
-        bar height=0.5,
+        bar height=0.45,
         bar label font=\scriptsize,
         group label font=\scriptsize\bfseries,
         title label font=\small,
@@ -1391,40 +1420,44 @@ O cronograma a seguir apresenta, no formato de diagrama de Gantt, as atividades 
         bar/.append style={fill=blue!40},
         group/.append style={draw=black, fill=blue!70},
         milestone/.append style={fill=red!70},
-        bar label node/.append style={text width=4cm, align=right},
-        group label node/.append style={text width=4cm, align=right},
-        milestone label node/.append style={text width=4cm, align=right}
+        bar label node/.append style={text width=3.8cm, align=right},
+        group label node/.append style={text width=3.8cm, align=right},
+        milestone label node/.append style={text width=3.8cm, align=right}
     ]{1}{16}
+        \gantttitle{Segundo semestre de 2026}{16} \\
         \gantttitle{Semanas}{16} \\
         \gantttitlelist{1,...,16}{1} \\
 
         \ganttgroup{Fase 1: Preparação experimental}{1}{4} \\
-        \ganttbar{Revisão final da literatura e ajustes metodológicos}{1}{2} \\
-        \ganttbar{Organização e revisão das anotações do dataset}{2}{4} \\
-        \ganttbar{Padronização e particionamento dos dados}{3}{4} \\
-        \ganttmilestone{Base experimental preparada}{4} \\
+        \ganttbar{Revisão da literatura e metodologia}{1}{2} \\
+        \ganttbar{Revisão das anotações do dataset}{2}{4} \\
+        \ganttbar{Particionamento dos dados}{3}{4} \\
+        \ganttmilestone{Base preparada}{4} \\
 
         \ganttgroup{Fase 2: Implementação do pipeline}{5}{7} \\
-        \ganttbar{Configuração do ambiente e ferramentas}{5}{5} \\
-        \ganttbar{Implementação do modelo base YOLOv8}{5}{6} \\
-        \ganttbar{Testes preliminares e ajuste de hiperparâmetros}{6}{7} \\
-        \ganttmilestone{Pipeline base validado}{7} \\
+        \ganttbar{Configuração do ambiente}{5}{5} \\
+        \ganttbar{Implementação do YOLOv8 base}{5}{6} \\
+        \ganttbar{Ajuste de hiperparâmetros}{6}{7} \\
+        \ganttmilestone{Pipeline validado}{7} \\
 
         \ganttgroup{Fase 3: Execução dos experimentos}{8}{13} \\
-        \ganttbar{Experimento 1: YOLOv8 + TL em imagens RGB}{8}{8} \\
-        \ganttbar{Experimento 2: YOLOv8 + TL + augmentation em RGB}{9}{10} \\
-        \ganttbar{Experimento 3: YOLOv8 + TL em imagens fotométrica}{10}{11} \\
-        \ganttbar{Experimento 4: YOLOv8 + TL + augmentation em fotométricas}{11}{12} \\
-        \ganttbar{Consolidação e comparação dos resultados}{12}{13} \\
-        \ganttmilestone{Estudo de ablação concluído}{13} \\
+        \ganttbar{Exp. 1: RGB sem augmentation}{8}{8} \\
+        \ganttbar{Exp. 2: RGB com augmentation}{9}{10} \\
+        \ganttbar{Exp. 3: Fotométrica sem augmentation}{10}{11} \\
+        \ganttbar{Exp. 4: Fotométrica com augmentation}{11}{12} \\
+        \ganttbar{Comparação dos resultados}{12}{13} \\
+        \ganttmilestone{Ablação concluída}{13} \\
 
         \ganttgroup{Fase 4: Redação e finalização}{14}{16} \\
-        \ganttbar{Redação dos resultados e discussão}{14}{15} \\
-        \ganttbar{Revisão final do TCC2 e ajustes}{15}{16} \\
+        \ganttbar{Resultados e discussão}{14}{15} \\
+        \ganttbar{Revisão final do TCC2}{15}{16} \\
         \ganttmilestone{Entrega final}{16}
     \end{ganttchart}
+
     \legend{Fonte: Elaborado pelo autor (2026)}
 \end{figure}
+
+
 
 % ---------------------------------------------------------------
 % ELEMENTOS PÓS-TEXTUAIS
