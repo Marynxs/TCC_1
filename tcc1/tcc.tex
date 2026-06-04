@@ -138,8 +138,9 @@ geradas pelo autor via filtro emboss seguido de equalização
 adaptativa de histograma (CLAHE) como representação alternativa de 
 entrada. O conjunto de dados é composto por 88 cartas fornecidas por 
 uma empresa brasileira especializada em graduação, totalizando 176 
-imagens por configuração experimental, com anotações produzidas por 
-avaliadores especializados. A avaliação adotará validação cruzada 
+imagens por configuração experimental, com anotações em formato de caixas delimitadoras derivadas dos 
+registros de defeitos produzidos por avaliadores especializados 
+em graduação de cartas TCG. A avaliação adotará validação cruzada 
 estratificada em cinco dobras, com resultados reportados como média e 
 desvio padrão do mAP@0.5, Precisão, Revocação e F1-\textit{score} 
 sobre as cinco rodadas.
@@ -269,10 +270,11 @@ geometria do equipamento de captura, pelo ângulo da câmera e por
 reflexos ambientais podem obscurecer defeitos reais ou gerar artefatos 
 visuais interpretados erroneamente como danos \cite{Zheng2021}. Esse tipo 
 de não-uniformidade é amplamente reconhecido na área de visão 
-computacional industrial \cite{Zheng2021}. Para mitigar seu impacto sobre 
-a detecção de defeitos sutis, técnicas de realce de contraste adaptativo têm 
-sido aplicadas como etapa de pré-processamento, amplificando variações 
-locais de intensidade independentemente das condições de iluminação \cite{Chen2021, Sawada2024}.
+computacional industrial \cite{Zheng2021}. Para mitigar seu impacto sobre a detecção de defeitos sutis, 
+técnicas de realce de superfície baseadas em filtragem de 
+gradiente e equalização de histograma têm sido aplicadas como 
+etapa de pré-processamento em sistemas de inspeção visual 
+\cite{Chen2021, Sawada2024}.
 
 O segundo desafio são os reflexos em superfícies holográficas 
 (\textit{foil}), presentes em cartas de maior raridade, que refletem 
@@ -304,7 +306,13 @@ treinamento, volume que ilustra o que representa um conjunto de dados
 de referência nesse domínio e evidencia por que cenários com poucos 
 exemplos rotulados, como o conjunto de 88 cartas disponível neste 
 trabalho, caracterizam uma restrição real que demanda estratégias de 
-treinamento específicas. 
+treinamento específicas. Sistemas integrados de graduação automática 
+já foram desenvolvidos e implantados em ambiente de produção, 
+avaliando cantos, bordas e superfície de forma unificada em datasets 
+industriais de larga escala \cite{Nahar2025b}, o que evidencia tanto 
+a viabilidade técnica da automação quanto a distância entre os 
+recursos disponíveis em contexto industrial e os cenários com dados 
+limitados investigados neste trabalho.
 
 
 % ---------------------------------------------------------------
@@ -318,12 +326,14 @@ lacunas que abrem espaço para a investigação proposta neste trabalho.
 learning} para graduação de cantos, alcançando 83\% de acurácia sobre 
 um conjunto de 593 cartas, mas o estudo está restrito a um único 
 critério de avaliação e não analisa sistematicamente o impacto de 
-diferentes estratégias de treinamento no desempenho do modelo. Não foram 
-identificados na literatura estudos que avaliem o impacto relativo de 
-estratégias de treinamento para detecção de defeitos em cartas TCG em 
-cenários com conjuntos reduzidos de dados reais, lacuna que este 
-trabalho se propõe a investigar sobre um conjunto de 88 cartas fornecido 
-por uma empresa brasileira especializada em graduação. 
+diferentes estratégias de treinamento no desempenho do modelo. 
+Embora sistemas integrados de graduação automática já demonstrem alta 
+acurácia em datasets industriais de larga escala \cite{Nahar2025b}, 
+a investigação sistemática do impacto de estratégias de treinamento 
+em cenários com conjuntos reduzidos de dados reais permanece uma 
+lacuna na literatura, que este trabalho se propõe a investigar sobre 
+um conjunto de 88 cartas fornecido por uma empresa brasileira 
+especializada em graduação.
 
 A relevância de investigar estratégias como 
 \textit{transfer learning} e aumento de dados em cenários 
@@ -536,12 +546,29 @@ atingindo taxas de acurácia superiores a 99\% em alguns casos
 
 A inspeção visual de cartas colecionáveis envolve a identificação
 de defeitos físicos distribuídos ao longo de regiões específicas
-da carta como a superfície, bordas e cantos \cite{Nahar2025}.
-Do ponto de vista computacional, compreender as características
-visuais desses defeitos é essencial para definir a formulação
-adequada da tarefa de detecção automática. 
+da carta. O processo de graduação avalia quatro critérios 
+independentes: cantos, bordas, superfície e centralização, 
+cada um passível de apresentar tipos específicos de defeito 
+\cite{Nahar2025}. A Figura~\ref{fig:criterios_graduacao} 
+ilustra essas regiões e os principais tipos de imperfeição 
+associados a cada critério.
 
-Os tipos de defeito mais relevantes para a inspeção visual automatizada incluem:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.00\textwidth]{imagens/criterios.png}
+    \caption{Critérios de avaliação no processo de graduação de 
+    cartas TCG: cantos, bordas, superfície e centralização, 
+    ilustrados sobre carta do conjunto de dados.}
+    \fonte{Elaborado pelo autor a partir de imagem fornecida 
+    por empresa parceira (2026).}
+    \label{fig:criterios_graduacao}
+\end{figure}
+
+Do ponto de vista computacional, compreender as 
+características visuais desses defeitos é essencial 
+para definir a formulação adequada da tarefa de 
+detecção automática. Os tipos de defeito mais 
+relevantes para a inspeção visual automatizada incluem:
 
 \begin{itemize}
     \item \textbf{Riscos superficiais (\textit{scratches}):}
@@ -842,27 +869,24 @@ de gradiente são empregadas como etapa de pré-processamento,
 amplificando variações locais de textura, relevo e contorno que 
 podem ser pouco evidentes na imagem RGB convencional \cite{Chen2021}.
 
-No contexto da inspeção visual automatizada, a combinação de filtros 
-de gradiente direcional com técnicas de equalização de histograma 
-tem demonstrado melhorar a acurácia de extração de defeitos em 
-superfícies industriais. \citeonline{Sawada2024} propõem um método 
-de inspeção de superfícies pintadas que aplica filtro \textit{emboss} 
-seguido de equalização de histograma como pré-processamento, 
-demonstrando que essa combinação melhora a detecção de defeitos em 
-relação à abordagem convencional sem pré-processamento.
-
-No contexto deste trabalho, as imagens fotométricas derivadas serão 
-geradas pela aplicação sequencial do filtro emboss e do 
-\textit{Contrast Limited Adaptive Histogram Equalization} (CLAHE) 
-sobre as imagens RGB originais das cartas, utilizando a biblioteca 
-OpenCV. O filtro emboss produz uma representação em tons de cinza 
-que realça variações de relevo e textura superficial, enquanto o 
-CLAHE amplifica os detalhes finos do relevo resultante sem saturar 
-regiões homogêneas \cite{Jiang2023}. Essa representação será 
-incorporada ao pipeline experimental como entrada alternativa, 
-permitindo investigar se o realce de gradiente direcional de 
-superfície contribui para a detecção de defeitos em cartas Pokémon 
-TCG em cenário com baixo volume de dados.
+No contexto da inspeção visual automatizada, filtros de gradiente 
+direcional têm sido aplicados como etapa de pré-processamento para 
+realce de defeitos em superfícies industriais. \citeonline{Sawada2024} 
+aplicam filtro \textit{emboss} para extração de defeitos em 
+superfícies pintadas, demonstrando que técnicas de gradiente 
+direcional contribuem para melhorar a acurácia de extração em 
+relação à abordagem sem pré-processamento. No presente trabalho, 
+as imagens fotométricas derivadas serão geradas pela aplicação 
+sequencial do filtro emboss e do \textit{Contrast Limited Adaptive 
+Histogram Equalization} (CLAHE) sobre as imagens RGB originais das 
+cartas, utilizando a biblioteca OpenCV. O filtro emboss produz uma 
+representação em tons de cinza que realça variações de relevo e 
+textura superficial, enquanto o CLAHE amplifica os detalhes finos 
+do relevo resultante sem saturar regiões homogêneas \cite{Jiang2023}. 
+Essa representação será incorporada ao pipeline experimental como 
+entrada alternativa, permitindo investigar se o realce de gradiente 
+direcional de superfície contribui para a detecção de defeitos em 
+cartas Pokémon TCG em cenário com baixo volume de dados.
 
 
 \subsection{Estudo de Ablação}
@@ -1140,6 +1164,20 @@ de realce contribui para o desempenho do detector.
     \label{fig:rgb_fotometrica}
 \end{figure}
 
+Como parte da preparação do conjunto de dados, foi realizada 
+uma análise descritiva preliminar com base nos registros de 
+defeitos fornecidos pela empresa parceira. Das 88 cartas 
+disponíveis, 60 apresentam pelo menos um defeito registrado 
+(68,18\%) e 28 foram classificadas sem defeitos identificados 
+(31,82\%). Essa distribuição indica predominância de exemplos 
+positivos no conjunto, o que favorece o treinamento do detector 
+em termos de representatividade da classe de interesse, mas 
+reforça a necessidade de estratificação cuidadosa nos folds da 
+validação cruzada para preservar essa proporção em cada rodada 
+de treinamento e avaliação \cite{Kohavi1995}. O número total de 
+instâncias anotadas por imagem e a distribuição de defeitos por 
+região da carta serão levantados na etapa de preparação do 
+conjunto de dados no TCC2.
 
 O particionamento será realizado por carta, de modo que a frente 
 e o verso de um mesmo exemplar pertençam sempre ao mesmo subconjunto.
@@ -1159,6 +1197,14 @@ influência de fatores aleatórios, os resultados serão reportados como média
 e desvio padrão sobre as cinco rodadas. O mesmo esquema de folds será 
 mantido fixo em todas as configurações experimentais, garantindo comparabilidade \cite{Chen2021}.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.00\textwidth]{imagens/kfold.png}
+    \caption{Esquema da validação cruzada estratificada em cinco dobras aplicada ao conjunto de 88 cartas. Em cada rodada, quatro folds são utilizados para treinamento e um fold é reservado para avaliação, mantendo frente e verso da mesma carta no mesmo fold.}
+    \fonte{Elaborado pelo autor (2026).}
+    \label{fig:kfold_cross_validation}
+\end{figure}
+
 Considerando o baixo volume de dados disponível e a dificuldade 
 associada à anotação de defeitos pequenos e visualmente sutis em cartas TCG,
 a modelagem inicial do problema será realizada com uma única classe de interesse,
@@ -1168,19 +1214,19 @@ envolver informações como categoria, localização, contorno e tamanho da impe
 na localização das regiões defeituosas, sem distinguir inicialmente os tipos 
 específicos de dano.
 
-As anotações do conjunto de dados foram fornecidas pela empresa
-parceira na forma de regiões delimitadas por avaliadores
-especializados em graduação de cartas TCG, indicando as áreas
-da carta onde defeitos visuais foram identificados e confirmados
-durante o processo de inspeção profissional. Esse tipo de
-anotação, produzida por especialistas do domínio com critérios
-técnicos estabelecidos, é considerado o padrão de referência
-em tarefas de detecção de defeitos visuais
-\cite{Nahar2025}. As regiões anotadas foram
-convertidas para o formato de caixas delimitadoras compatível
-com o YOLOv8, associadas à classe única \textit{defeito},
-preservando a localização espacial das imperfeições
-identificadas pelos avaliadores.
+As anotações do conjunto de dados serão produzidas pelo autor 
+na forma de caixas delimitadoras (\textit{bounding boxes}) 
+compatíveis com o formato YOLOv8, derivadas dos registros de 
+defeitos identificados por avaliadores especializados em 
+graduação de cartas TCG durante o processo de inspeção 
+profissional. Esse tipo de anotação, fundamentada na avaliação 
+de especialistas do domínio com critérios técnicos estabelecidos, 
+é considerado o padrão de referência em tarefas de detecção de 
+defeitos visuais \cite{Nahar2025}. A conversão dos registros 
+de defeitos para o formato de detecção de objetos preserva a 
+localização espacial das imperfeições identificadas pelos 
+avaliadores, associando cada região defeituosa à classe única 
+\textit{defeito}.
 
 Essa decisão metodológica reduz a granularidade do problema, evita a 
 fragmentação do conjunto de treinamento em múltiplas classes com poucos 
@@ -1192,14 +1238,6 @@ modelo \cite{Chen2021}. Assim, no presente trabalho, o modelo não terá
 como objetivo diferenciar categorias como risco, dobra ou desgaste, 
 mas sim identificar regiões da carta que apresentem indícios visuais 
 de defeito.
-
-Previamente à execução dos experimentos, será realizada uma análise 
-descritiva do conjunto de dados, incluindo o número de cartas com 
-pelo menos uma região defeituosa anotada e o número médio de anotações 
-por imagem. Essa análise permitirá identificar eventuais desequilíbrios 
-entre imagens com e sem defeitos anotados — situação comum em datasets 
-de inspeção visual \cite{Chen2021} — e orientar ajustes nos testes 
-preliminares caso necessário.
 
 \subsection{Modelo base}
 \label{subsec:modelo_base}
@@ -1276,10 +1314,24 @@ paciência será ajustado nos testes preliminares, sendo mantido fixo
 em todas as quatro configurações experimentais para garantir 
 comparabilidade entre os resultados.
 
-Como ponto de partida para os testes preliminares, serão
-adotados os valores padrão recomendados pela biblioteca
-Ultralytics para o YOLOv8, ajustando-os conforme necessário
-para o tamanho reduzido do conjunto de dados disponível.
+Como ponto de partida para os testes preliminares, 
+serão adotados os valores padrão recomendados pela
+biblioteca Ultralytics para o YOLOv8, ajustando-os
+conforme necessário para o tamanho reduzido do 
+conjunto de dados disponível. Adicionalmente,
+os testes preliminares contemplarão a validação 
+da variante do modelo, avaliando YOLOv8n como
+alternativa a YOLOv8s caso sejam observados sinais
+de \textit{overfitting}, bem como a definição dos
+parâmetros do pipeline de pré-processamento fotométrico.
+Esses parâmetros incluem o kernel do filtro emboss 
+($3{\times}3$), o \textit{clipLimit} (valor de referência: 3,0)
+e o \textit{tileGridSize} ($8{\times}8$ pixels) do CLAHE.
+Todos os valores definidos nessa etapa serão mantidos fixos 
+entre as quatro configurações experimentais, garantindo que
+as diferenças de desempenho observadas sejam atribuíveis 
+exclusivamente às estratégias avaliadas.
+
 
 \subsection{Estratégias de treinamento avaliadas}
 \label{subsec:estrategias}
@@ -1314,9 +1366,14 @@ representação alternativa de entrada, com o objetivo de verificar se
 o realce de textura, relevo e irregularidades superficiais contribui 
 para a detecção de defeitos visuais. Essas imagens serão geradas pela 
 aplicação sequencial de filtro emboss e CLAHE sobre as imagens RGB 
-originais, utilizando a biblioteca OpenCV, com parâmetros definidos 
-nos testes preliminares previstos na 
-Seção~\ref{subsec:hiperparametros}.
+originais, utilizando a biblioteca OpenCV. O filtro emboss utiliza um 
+kernel direcional $3{\times}3$ fixo, e o CLAHE é configurado com 
+\textit{clipLimit} inicial de 3,0 e \textit{tileGridSize} de 
+$8{\times}8$ pixels, valores de referência adotados como ponto de 
+partida nos testes preliminares previstos na 
+Seção~\ref{subsec:hiperparametros}, nos quais serão avaliados 
+empiricamente e mantidos fixos entre todas as configurações 
+experimentais após definição.
 
 \subsection{Estudo de ablação}
 \label{subsec:ablacao}
@@ -1337,7 +1394,7 @@ Serão consideradas quatro configurações experimentais:
     \item YOLOv8 com \textit{transfer learning} em imagens 
     fotométricas derivadas;
     \item YOLOv8 com \textit{transfer learning}, aumento de dados 
-    e imagens fotométricas derivadas.
+    em imagens fotométricas derivadas.
 \end{enumerate}
 
 A configuração 1 serve como referência do estudo de ablação,
