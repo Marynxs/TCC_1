@@ -138,9 +138,8 @@ geradas pelo autor via filtro emboss seguido de equalização
 adaptativa de histograma (CLAHE) como representação alternativa de 
 entrada. O conjunto de dados é composto por 88 cartas fornecidas por 
 uma empresa brasileira especializada em graduação, totalizando 176 
-imagens por configuração experimental, com anotações em formato de caixas delimitadoras derivadas dos 
-registros de defeitos produzidos por avaliadores especializados 
-em graduação de cartas TCG. A avaliação adotará validação cruzada 
+imagens por configuração experimental, com anotações em formato de caixas delimitadoras derivadas 
+de registros de avaliadores especializados em graduação de cartas TCG. A avaliação adotará validação cruzada 
 estratificada em cinco dobras, com resultados reportados como média e 
 desvio padrão do mAP@0.5, Precisão, Revocação e F1-\textit{score} 
 sobre as cinco rodadas.
@@ -184,21 +183,27 @@ Pokémon TCG. Small Datasets. YOLOv8. Pré-processamento Fotométrico.
 \chapter{Introdução}
 \label{cap:introducao}
 
-O mercado de Trading Card Games (TCG), representado por franquias 
-como Pokémon e Magic: The Gathering, deve movimentar aproximadamente 
-20 bilhões de dólares globalmente em 2026, com projeção de ultrapassar 
-76 bilhões até 2035 \cite{BRI2026}. Nesse mercado, o valor comercial 
-de uma carta está diretamente ligado ao seu estado de conservação 
-física. Para certificar essa condição e conferir segurança às 
-transações, consolidou-se o serviço especializado de graduação de 
-cartas (\textit{card grading}), no qual profissionais avaliam cada 
-exemplar segundo critérios padronizados e atribuem uma nota que 
-sintetiza sua qualidade \cite{Nahar2025}. A PSA (\textit{Professional 
-Sports Authenticator}), pioneira nessa padronização, estabeleceu uma 
-escala de 10 pontos que se tornaria norma do setor \cite{Nahar2025}, 
-enquanto a Beckett Grading Services introduziu, posteriormente, 
-subnotas para atributos individuais da carta, ampliando o detalhamento 
-do processo de avaliação \cite{Shen2025}.
+Trading Card Games (TCG) são jogos de cartas colecionáveis nos quais 
+cada carta possui atributos únicos, como raridade, ilustração, edição, 
+condição física e valor comercial. Além de sua função no contexto do 
+jogo, essas cartas são negociadas entre jogadores e colecionadores, 
+o que contribui para a formação de um mercado voltado à compra, venda, 
+troca e avaliação de exemplares.
+Representado por franquias como Pokémon e Magic: The 
+Gathering, esse mercado deve movimentar aproximadamente 20 bilhões de 
+dólares globalmente em 2026, com projeção de ultrapassar 76 bilhões 
+até 2035 \cite{BRI2026}. Nesse contexto, o valor comercial de uma carta 
+está diretamente ligado ao seu estado de conservação física. Para 
+certificar essa condição e conferir segurança às transações, 
+consolidou-se o serviço especializado de graduação de cartas 
+(\textit{card grading}), no qual profissionais avaliam cada exemplar 
+segundo critérios padronizados e atribuem uma nota que sintetiza sua 
+qualidade \cite{Nahar2025}. A PSA (\textit{Professional Sports 
+Authenticator}), pioneira nessa padronização, estabeleceu uma escala 
+de 10 pontos que se tornaria norma do setor \cite{Nahar2025}, enquanto 
+a Beckett Grading Services introduziu, posteriormente, subnotas para 
+atributos individuais da carta, ampliando o detalhamento do processo 
+de avaliação \cite{Shen2025}.
 
 O processo de graduação, no entanto, ainda é realizado de forma 
 predominantemente manual. Os avaliadores inspecionam cada carta com 
@@ -433,37 +438,84 @@ evidenciar a lacuna que motiva a proposta deste trabalho.
 \section{Metodologia da pesquisa bibliográfica}
 \label{sec:metodologia_pesquisa}
 
-A pesquisa bibliográfica foi realizada por meio da base Google Scholar, IEEE Xplore,
-ScienceDirect, MDPI utilizando combinações de termos em inglês diretamente relacionados aos temas centrais 
-do trabalho. As principais expressões de busca utilizadas foram: \textit{``transfer learning'' 
-AND ``object detection'' AND ``small dataset'' AND ``performance evaluation''}, 
-\textit{``trading card'' OR ``collectible card'' AND ``computer vision''}, 
-\textit{``card grading'' AND ``automated'' OR ``machine learning''}, 
-\textit{``surface defect detection'' AND ``computer vision'' AND ``scratch'' OR ``wear''},
-\textit{``ablation study'' AND ``object detection'' AND ``transfer learning''},
-\textit{``COCO dataset'' AND ``object detection'' AND ``YOLO pretraining''},
-\textit{``emboss filter'' AND ``surface defect'' AND ``deep learning''},
-\textit{``YOLOv8'' AND ``defect detection'' AND ``transfer learning''} e
-\textit{``data augmentation'' AND ``small dataset'' AND ``object detection''}.
+A pesquisa bibliográfica foi realizada por meio das bases Google Scholar, 
+IEEE Xplore, ScienceDirect e MDPI, utilizando combinações de termos em 
+inglês diretamente relacionados aos temas centrais do trabalho. As 
+strings de busca utilizadas, bem como os quantitativos de artigos 
+triados e selecionados em cada etapa, estão apresentados na 
+Tabela~\ref{tab:strings_busca}. A triagem considerou título e resumo 
+como critérios iniciais de relevância, com leitura completa reservada 
+aos trabalhos selecionados para inclusão.
 
-Foram priorizados trabalhos acadêmicos publicados entre 2021 e 2026, em língua inglesa, 
-disponíveis em periódicos ou anais de conferências. A seleção considerou principalmente 
-estudos revisados por pares e \textit{surveys} 
-recentes quando diretamente relacionados ao problema investigado ou necessários para 
-fundamentar conceitos técnicos específicos. Excepcionalmente, foram incluídos dois trabalhos
-anteriores a 2021 por se tratarem de referências seminais: o \textit{dataset} COCO \cite{Lin2014},
-base de pré-treinamento do YOLOv8, e \citeonline{Kohavi1995}, referência fundacional sobre validação
-cruzada em cenários com dados limitados, diretamente aplicável ao contexto deste trabalho.
+\begin{table}[htb]
+\centering
+\caption{Strings de busca utilizadas na pesquisa bibliográfica}
+\label{tab:strings_busca}
+\footnotesize
+\begin{tabular}{p{7.5cm}|c|c|c}
+\toprule
+\textbf{String de busca} & \textbf{Bases} & \textbf{Triados} & \textbf{Selecionados} \\
+\midrule
+\textit{``trading card'' AND ``Pokemon TCG''} 
+    & GS, IEEE, SD, MDPI & 2 & 1 \\
+\midrule
+\textit{``trading card'' OR ``collectible card'' AND ``computer vision''} 
+    & GS, IEEE, SD, MDPI & 6 & 2 \\
+\midrule
+\textit{``card grading'' AND ``automated'' OR ``machine learning''} 
+    & GS, IEEE, SD, MDPI & 6 & 2 \\
+\midrule
+\textit{``surface defect detection'' AND ``computer vision'' AND ``scratch'' OR ``wear''} 
+    & GS, IEEE, SD, MDPI & 9 & 3 \\
+\midrule
+\textit{``ablation study'' AND ``object detection'' AND ``transfer learning''} 
+    & GS, IEEE, SD, MDPI & 5 & 2 \\
+\midrule
+\textit{``dataset COCO'' AND ``object detection'' AND ``YOLO pretraining''} 
+    & GS, IEEE, SD, MDPI & 3 & 1 \\
+\midrule
+\textit{``emboss filter'' AND ``surface defect'' AND ``deep learning''} 
+    & GS, IEEE, SD, MDPI & 5 & 1 \\
+\midrule
+\textit{``CLAHE filter'' AND ``surface defect'' AND ``deep learning''} 
+    & GS, IEEE, SD, MDPI & 8 & 1 \\
+\midrule
+\textit{``YOLOv8'' AND ``defect detection'' AND ``transfer learning''} 
+    & GS, IEEE, SD, MDPI & 11 & 4 \\
+\midrule
+\textit{``cross-validation'' AND ``YOLO'' AND ``defect detection''} 
+    & GS, IEEE, SD, MDPI & 6 & 1 \\
+\midrule
+Fontes não acadêmicas (contextualização de mercado) 
+    & Diversas & — & 1 \\
+\midrule
+\textbf{Total} & & \textbf{61} & \textbf{19} \\
+\bottomrule
+\end{tabular}
+\legend{GS = Google Scholar; IEEE = IEEE Xplore; SD = ScienceDirect; MDPI = Multidisciplinary Digital Publishing Institute.
+Fonte: Elaborado pelo autor (2026).}
+\end{table}
 
-De forma complementar, também foram consultadas fontes não acadêmicas, como páginas 
-institucionais, relatórios setoriais e matérias jornalísticas especializadas, utilizadas 
-exclusivamente para contextualização do mercado, caracterização do domínio de aplicação 
-e descrição de padrões de graduação de cartas. Nesses casos, também foram consideradas 
-fontes em língua portuguesa quando relevantes para o contexto brasileiro.
+Foram priorizados trabalhos acadêmicos publicados entre 2021 e 2026, 
+em língua inglesa, disponíveis em periódicos ou anais de conferências. 
+A seleção considerou principalmente estudos revisados por pares e 
+\textit{surveys} recentes quando diretamente relacionados ao problema 
+investigado ou necessários para fundamentar conceitos técnicos 
+específicos. Excepcionalmente, foram incluídos dois trabalhos anteriores 
+a 2021 por se tratarem de referências seminais: o \textit{dataset} COCO 
+\cite{Lin2014}, base de pré-treinamento do YOLOv8, e 
+\citeonline{Kohavi1995}, referência fundacional sobre validação cruzada 
+em cenários com dados limitados, diretamente aplicável ao contexto 
+deste trabalho.
 
-A relevância de cada trabalho foi avaliada com base em sua aderência ao problema de 
-pesquisa, isto é, a detecção automatizada de defeitos visuais em cenários com baixo 
-volume de dados, com ênfase em aplicações de visão computacional em domínios especializados.
+De forma complementar, também foram consultadas fontes não acadêmicas, 
+como páginas institucionais e relatórios setoriais, utilizadas 
+exclusivamente para contextualização do mercado e caracterização do 
+domínio de aplicação \cite{BRI2026}. A relevância de cada trabalho foi 
+avaliada com base em sua aderência ao problema de pesquisa, isto é, a 
+detecção automatizada de defeitos visuais em cenários com baixo volume 
+de dados, com ênfase em aplicações de visão computacional em domínios 
+especializados.
 
 \section{Referencial teórico}
 \label{sec:referencial}
@@ -849,6 +901,12 @@ de dados desempenha um papel crítico na prevenção de
 conjunto de treinamento, essa estratégia reduz a dependência
 do modelo em relação a padrões específicos dos exemplos
 disponíveis, favorecendo a generalização \cite{Chen2021}.
+No contexto específico de detecção de defeitos com YOLOv8, 
+\citeonline{Chen2024NHD} propõem uma técnica de aumento de 
+dados voltada para objetos pequenos, demonstrando que 
+estratégias de augmentation direcionadas ao tipo de defeito 
+presente no dataset produzem ganhos mais consistentes do que 
+transformações genéricas aplicadas indiscriminadamente.
 No contexto do presente trabalho, técnicas de aumento de
 dados serão incorporadas ao pipeline experimental como
 uma das estratégias avaliadas no estudo de ablação,
@@ -869,24 +927,31 @@ de gradiente são empregadas como etapa de pré-processamento,
 amplificando variações locais de textura, relevo e contorno que 
 podem ser pouco evidentes na imagem RGB convencional \cite{Chen2021}.
 
-No contexto da inspeção visual automatizada, filtros de gradiente 
-direcional têm sido aplicados como etapa de pré-processamento para 
-realce de defeitos em superfícies industriais. \citeonline{Sawada2024} 
-aplicam filtro \textit{emboss} para extração de defeitos em 
-superfícies pintadas, demonstrando que técnicas de gradiente 
-direcional contribuem para melhorar a acurácia de extração em 
-relação à abordagem sem pré-processamento. No presente trabalho, 
-as imagens fotométricas derivadas serão geradas pela aplicação 
-sequencial do filtro emboss e do \textit{Contrast Limited Adaptive 
-Histogram Equalization} (CLAHE) sobre as imagens RGB originais das 
-cartas, utilizando a biblioteca OpenCV. O filtro emboss produz uma 
-representação em tons de cinza que realça variações de relevo e 
-textura superficial, enquanto o CLAHE amplifica os detalhes finos 
-do relevo resultante sem saturar regiões homogêneas \cite{Jiang2023}. 
-Essa representação será incorporada ao pipeline experimental como 
-entrada alternativa, permitindo investigar se o realce de gradiente 
-direcional de superfície contribui para a detecção de defeitos em 
-cartas Pokémon TCG em cenário com baixo volume de dados.
+No contexto da inspeção visual automatizada, filtros de gradiente
+direcional têm sido aplicados como etapa de pré-processamento para
+realce de defeitos em superfícies industriais. \citeonline{Sawada2024}
+aplicam filtro \textit{emboss} para extração de defeitos em
+superfícies pintadas, demonstrando que técnicas de gradiente
+direcional contribuem para melhorar a acurácia de extração em
+relação à abordagem sem pré-processamento. De forma complementar,
+\citeonline{Jiang2023} aplicam \textit{Contrast Limited Adaptive
+Histogram Equalization} (CLAHE) como etapa de pré-processamento
+anterior à detecção com YOLO, evidenciando que a equalização
+adaptativa de histograma pode amplificar detalhes finos relevantes
+para detectores de objetos. No presente trabalho, as imagens
+fotométricas derivadas serão geradas pela aplicação sequencial
+dessas duas técnicas, isto é, filtro \textit{emboss} seguido de CLAHE,
+sobre as imagens RGB originais das cartas, utilizando a biblioteca
+OpenCV. O filtro \textit{emboss} produz uma representação em tons de
+cinza que realça variações de relevo e textura superficial, enquanto
+o CLAHE amplifica os detalhes finos do relevo resultante sem saturar
+regiões homogêneas. Até onde a revisão bibliográfica identificou,
+essa combinação sequencial como representação alternativa de entrada
+para um detector YOLOv8 não foi investigada na literatura de inspeção
+de cartas colecionáveis. O estudo de ablação avaliará empiricamente
+se essa representação contribui para o desempenho do detector no
+cenário de baixo volume de dados considerado neste trabalho.
+
 
 
 \subsection{Estudo de Ablação}
@@ -904,20 +969,30 @@ ou modificando elementos de forma controlada. Dessa forma, torna-se possível
 identificar quais componentes efetivamente contribuem para a melhoria do
 desempenho e quais apresentam impacto reduzido ou dependente do contexto.
 
-Em modelos de detecção de objetos baseados em YOLO, esse tipo de análise é
-especialmente relevante para avaliar estratégias de treinamento e adaptação
-de modelos pré-treinados. \citeonline{Dobrzycki2025} investigaram diferentes
-configurações de \textit{transfer learning} em arquiteturas 
-YOLOv8 e YOLOv10, comparando treinamento do zero, 
-\textit{fine-tuning} completo e congelamento parcial de 
-camadas (\textit{layer freezing}). Os autores demonstraram 
-que não há uma estratégia universalmente superior, uma vez 
-que o desempenho depende das características do conjunto de 
-dados, do grau de desbalanceamento, da complexidade visual e 
-dos recursos computacionais disponíveis. No presente trabalho, 
-o fine-tuning será aplicado sem congelamento de camadas, 
-concentrando a análise comparativa nas estratégias de 
-preparação dos dados e pré-processamento.
+Em modelos de detecção de objetos baseados em YOLO, esse tipo 
+de análise é especialmente relevante para avaliar estratégias 
+de treinamento e adaptação de modelos pré-treinados. 
+\citeonline{Liu2022} conduziram um estudo de ablação 
+explícito em uma arquitetura YOLOv5 modificada para detecção 
+de objetos pequenos em imagens de UAV com dados limitados, 
+avaliando a contribuição individual de cada componente 
+proposto e demonstrando que a ablação permite identificar 
+quais elementos efetivamente melhoram o desempenho do detector. 
+\citeonline{Dobrzycki2025} investigaram sistematicamente 
+diferentes configurações de \textit{transfer learning} em 
+arquiteturas YOLOv8 e YOLOv10, comparando treinamento do 
+zero, \textit{fine-tuning} completo e congelamento parcial 
+de camadas, demonstrando que não há estratégia universalmente 
+superior e que o desempenho depende das características do 
+conjunto de dados. \citeonline{Chen2024NHD} conduzem ablação 
+explícita sobre três componentes independentes do detector, 
+avaliando sua contribuição individual e combinada sobre o 
+mesmo conjunto de dados, ilustrando como o desenho fatorial 
+permite atribuir ganhos de desempenho a componentes 
+específicos do pipeline. No presente trabalho, o 
+\textit{fine-tuning} será aplicado sem congelamento de 
+camadas, concentrando a análise comparativa nas estratégias 
+de preparação dos dados e pré-processamento.
 
 % ---------------------------------------------------------------
 \subsection{Validação Cruzada}
@@ -949,6 +1024,16 @@ o tamanho do conjunto de avaliação, com cerca de 17 cartas por fold,
 com o volume disponível para treinamento em cada rodada, evitando que
 conjuntos de avaliação excessivamente pequenos introduzam instabilidade
 nas estimativas \cite{Kohavi1995}.
+
+Em cada rodada, o bloco de treinamento será subdividido internamente
+em um conjunto de treino efetivo e um \textit{validation set},
+constituído por aproximadamente 20\% das cartas do bloco de
+treinamento. Esse subconjunto interno é utilizado exclusivamente
+para monitoramento do critério de parada antecipada
+(\textit{early stopping}), sem participar da atualização dos pesos
+do modelo. O fold de avaliação permanece completamente isolado durante
+todo o treinamento, sendo utilizado apenas para reportar o desempenho
+final de cada rodada.
 
 % ---------------------------------------------------------------
 \subsection{Métricas de Avaliação}
@@ -1191,6 +1276,11 @@ carta sempre no mesmo fold \cite{Kohavi1995}. Em cada rodada, quatro folds
 (~70 cartas, ~140 imagens) são utilizados para treinamento e um fold 
 (~18 cartas, ~36 imagens) para avaliação, resultando em uma proporção 
 aproximada de 80\% para treinamento e 20\% para avaliação por rodada.
+Do bloco de treinamento de cada rodada, aproximadamente 20\% das cartas 
+(~14 cartas, ~28 imagens) são separadas aleatoriamente como 
+\textit{validation set} interno, utilizado exclusivamente para 
+monitoramento do \textit{early stopping}, de modo que o treino efetivo 
+ocorre sobre as ~56 cartas restantes (~112 imagens).
 Seguindo a prática de \citeonline{Wang2022}, que executaram experimentos 
 independentes sobre múltiplos grupos e reportaram a média para reduzir a 
 influência de fatores aleatórios, os resultados serão reportados como média
@@ -1200,7 +1290,14 @@ mantido fixo em todas as configurações experimentais, garantindo comparabilida
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.00\textwidth]{imagens/kfold.png}
-    \caption{Esquema da validação cruzada estratificada em cinco dobras aplicada ao conjunto de 88 cartas. Em cada rodada, quatro folds são utilizados para treinamento e um fold é reservado para avaliação, mantendo frente e verso da mesma carta no mesmo fold.}
+    \caption{Esquema da validação cruzada estratificada em cinco dobras 
+    aplicada ao conjunto de 88 cartas. Em cada rodada, quatro folds são 
+    utilizados para treinamento e um fold é reservado para avaliação, 
+    mantendo frente e verso da mesma carta no mesmo fold. Do bloco de 
+    treinamento de cada rodada, aproximadamente 20\% das cartas (~14) são 
+    separadas aleatoriamente como \textit{validation set} para monitoramento 
+    do \textit{early stopping}, permanecendo o fold de avaliação completamente 
+    isolado durante o treinamento.}
     \fonte{Elaborado pelo autor (2026).}
     \label{fig:kfold_cross_validation}
 \end{figure}
@@ -1306,11 +1403,16 @@ o uso de aumento de dados, e não a variações no processo de otimização
 \cite{Dobrzycki2025}.
 
 O critério de parada antecipada será configurado para monitorar o 
-mAP@0.5 no fold de avaliação de cada rodada da validação cruzada, 
-com paciência inicial de 50 épocas, valor compatível com o tamanho 
-reduzido do conjunto de dados e alinhado aos padrões da biblioteca 
-Ultralytics para YOLOv8 \cite{Dobrzycki2025}. O valor final da 
-paciência será ajustado nos testes preliminares, sendo mantido fixo 
+mAP@0.5 em um subconjunto de validação interno (\textit{validation 
+set}), constituído por aproximadamente 20\% das cartas do bloco de 
+treinamento de cada rodada, correspondendo a cerca de 14 cartas (28 
+imagens). Esse subconjunto é distinto do fold de avaliação, que 
+permanece completamente isolado durante o treinamento e é utilizado 
+exclusivamente para reportar o desempenho final de cada configuração 
+experimental. A paciência inicial será de 50 épocas, valor compatível 
+com o tamanho reduzido do conjunto de dados e alinhado aos padrões da 
+biblioteca Ultralytics para YOLOv8 \cite{Dobrzycki2025}. O valor final 
+da paciência será ajustado nos testes preliminares, sendo mantido fixo 
 em todas as quatro configurações experimentais para garantir 
 comparabilidade entre os resultados.
 
@@ -1357,9 +1459,10 @@ a base comum de treinamento sobre a qual serão avaliados o aumento de dados
 e o uso de imagens fotométricas derivadas.
 
 O aumento de dados será utilizado para ampliar artificialmente a variabilidade 
-do conjunto de treinamento. Serão consideradas transformações compatíveis com 
-o problema, como ajustes geométricos e fotométricos, desde que preservem a 
-interpretação visual dos defeitos e não distorçam suas características essenciais.
+do conjunto de treinamento. Para a representação RGB, serão aplicadas transformações
+geométricas (flip horizontal, rotação de até ±10°) e fotométricas (variação de brilho e saturação).
+Para a representação fotométrica, serão utilizadas apenas transformações geométricas, uma vez que a
+imagem embossada já passou por normalização via CLAHE, tornando inconsistente a aplicação de variações artificiais de brilho ou contraste.
 
 Já o uso das imagens fotométricas derivadas será avaliado como uma 
 representação alternativa de entrada, com o objetivo de verificar se 
