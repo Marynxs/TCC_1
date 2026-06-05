@@ -124,8 +124,8 @@ de Curso (TCC1) desenvolvido no SENAC Santo Amaro. O objetivo deste
 trabalho é avaliar o impacto de diferentes estratégias de treinamento 
 aplicadas ao modelo YOLOv8 para detecção de defeitos superficiais em 
 cartas Pokémon TCG em cenários com baixo volume de dados, identificando 
-quais combinações apresentam melhor desempenho com conjuntos limitados 
-de imagens anotadas por especialistas. A justificativa baseia-se na 
+quais combinações apresentam melhor desempenho com conjunto
+limitado de imagens. A justificativa baseia-se na 
 escassez de estudos que avaliem sistematicamente essas estratégias no 
 domínio de cartas colecionáveis, aliada ao alto custo de anotação e à 
 ausência de bases de dados públicas para esse contexto. Como solução 
@@ -267,15 +267,17 @@ específicas da carta e podem ocupar áreas reduzidas da imagem, o que
 os torna difíceis de identificar tanto manualmente quanto por meio de 
 modelos computacionais \cite{Nahar2025}.
 
-Do ponto de vista computacional, a detecção desses defeitos apresenta 
-desafios que vão além dos encontrados em inspeção industrial 
-convencional. O primeiro deles é a variação de iluminação durante a 
-captura das imagens: inconsistências espaciais de brilho causadas pela 
-geometria do equipamento de captura, pelo ângulo da câmera e por 
-reflexos ambientais podem obscurecer defeitos reais ou gerar artefatos 
-visuais interpretados erroneamente como danos \cite{Zheng2021}. Esse tipo 
-de não-uniformidade é amplamente reconhecido na área de visão 
-computacional industrial \cite{Zheng2021}. Para mitigar seu impacto sobre a detecção de defeitos sutis, 
+Do ponto de vista computacional, a detecção desses defeitos apresenta desafios
+semelhantes aos encontrados em inspeção industrial automatizada, mas agravados
+pelas características específicas das cartas TCG. O primeiro deles é a variação
+de iluminação durante a captura das imagens: inconsistências espaciais de brilho
+causadas pela geometria do equipamento de captura, pelo ângulo da câmera e por
+reflexos ambientais podem obscurecer defeitos reais ou gerar artefatos visuais
+interpretados erroneamente como danos \cite{Zheng2021}. Embora esse tipo de
+não-uniformidade seja amplamente reconhecido na área de visão computacional
+industrial, no contexto de cartas colecionáveis seu impacto pode ser intensificado
+pela presença de artes visualmente complexas, superfícies holográficas e defeitos
+de baixa visibilidade. Para mitigar seu impacto sobre a detecção de defeitos sutis, 
 técnicas de realce de superfície baseadas em filtragem de 
 gradiente e equalização de histograma têm sido aplicadas como 
 etapa de pré-processamento em sistemas de inspeção visual 
@@ -309,8 +311,7 @@ investigação possível. \citeonline{Nahar2025} utilizaram 593 cartas
 escaneadas por um parceiro industrial para compor seu conjunto de 
 treinamento, volume que ilustra o que representa um conjunto de dados 
 de referência nesse domínio e evidencia por que cenários com poucos 
-exemplos rotulados, como o conjunto de 88 cartas disponível neste 
-trabalho, caracterizam uma restrição real que demanda estratégias de 
+exemplos rotulados, caracterizam uma restrição real que demanda estratégias de 
 treinamento específicas. Sistemas integrados de graduação automática 
 já foram desenvolvidos e implantados em ambiente de produção, 
 avaliando cantos, bordas e superfície de forma unificada em datasets 
@@ -607,7 +608,7 @@ associados a cada critério.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.00\textwidth]{imagens/criterios.png}
+    \includegraphics[width=0.78\textwidth]{imagens/criterios.png}
     \caption{Critérios de avaliação no processo de graduação de 
     cartas TCG: cantos, bordas, superfície e centralização, 
     ilustrados sobre carta do conjunto de dados.}
@@ -697,10 +698,14 @@ entre a caixa delimitadora predita e a caixa de referência
 (\textit{ground truth}). O IoU é calculado como a razão entre a 
 área de interseção e a área de união das duas caixas, assumindo 
 valores entre 0 e 1, onde valores mais próximos de 1 indicam 
-maior precisão de localização \cite{Ramos2025}. A partir de um 
-limiar de IoU predefinido, tipicamente 0,5, uma predição é 
-classificada como verdadeiro positivo (TP) se a sobreposição 
-for suficiente, ou como falso positivo (FP) caso contrário 
+maior precisão de localização \cite{Ramos2025}. A partir de um limiar 
+de IoU predefinido, geralmente 0,5, uma predição é considerada
+verdadeiro positivo (TP) quando corresponde a uma caixa de 
+referência e sua sobreposição atinge ou supera esse limiar. 
+Predições que não correspondem adequadamente a nenhuma caixa
+de referência são contabilizadas como falsos positivos (FP). 
+Caixas de referência que não são associadas 
+a nenhuma predição válida são contabilizadas como falsos negativos (FN).
 \cite{Ramos2025}.
 
 As arquiteturas de detecção de objetos são geralmente 
@@ -1230,7 +1235,7 @@ de realce contribui para o desempenho do detector.
 
     \begin{minipage}{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{imagens/carta_rgb.png}
+        \includegraphics[width=0.90\textwidth]{imagens/carta_rgb.png}
 
         \vspace{0.2cm}
         {\small (a) Imagem RGB convencional}
@@ -1238,7 +1243,7 @@ de realce contribui para o desempenho do detector.
     \hfill
     \begin{minipage}{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{imagens/carta_fotometrica.png}
+        \includegraphics[width=0.90\textwidth]{imagens/carta_fotometrica.png}
 
         \vspace{0.2cm}
         {\small (b) Imagem fotométrica derivada}
@@ -1359,7 +1364,7 @@ dataset COCO \cite{Lin2014}, este trabalho adotará a versão
 parâmetros. Essa escolha é motivada pela relação entre capacidade de 
 representação e volume de dados disponível por fold: variantes maiores 
 possuem dezenas de milhões de parâmetros adicionais que, com cerca de 
-70 cartas de treinamento por rodada, aumentariam o risco de 
+56 cartas de treinamento por rodada, aumentariam o risco de 
 \textit{overfitting} mesmo com \textit{transfer learning}. 
 \citeonline{Wang2022} demonstram, em contexto análogo de detecção de 
 defeitos industriais com dados escassos, que modelos com maior número 
@@ -1376,9 +1381,12 @@ será avaliado como alternativa caso YOLOv8s apresente sinais de
 Os demais experimentos partirão dessa configuração de referência e incorporarão
 novas estratégias de forma controlada. Para garantir comparabilidade entre os
 resultados, serão mantidos fixos, entre as configurações, parâmetros como
-resolução de entrada, número de épocas, taxa de aprendizado e tamanho do lote,
-cujos valores serão definidos em testes preliminares antes da execução do estudo
-de ablação.
+resolução de entrada, taxa de aprendizado, tamanho do lote, número máximo de
+épocas e critério de parada antecipada. Assim, embora o número efetivo de épocas
+possa variar entre os experimentos em função do \textit{early stopping}, todas
+as configurações serão submetidas ao mesmo limite máximo de treinamento e à
+mesma regra de interrupção. Esses valores serão definidos em testes preliminares
+antes da execução do estudo de ablação.
 
 \subsection{Hiperparâmetros de treinamento}
 \label{subsec:hiperparametros}
@@ -1496,7 +1504,7 @@ Serão consideradas quatro configurações experimentais:
     em imagens RGB;
     \item YOLOv8 com \textit{transfer learning} em imagens 
     fotométricas derivadas;
-    \item YOLOv8 com \textit{transfer learning}, aumento de dados 
+    \item YOLOv8 com \textit{transfer learning} e aumento de dados 
     em imagens fotométricas derivadas.
 \end{enumerate}
 
