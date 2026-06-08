@@ -361,7 +361,6 @@ superou o detector de referência em aproximadamente 15 pontos
 de mAP, evidência direta de que a combinação dessas
 estratégias pode compensar a escassez de exemplos rotulados.
 
-
 Na prática, os resultados desta investigação podem evidenciar em que 
 medida estratégias como \textit{transfer learning}, aumento de dados 
 e o uso de imagens fotométricas derivadas permanecem eficazes quando 
@@ -608,7 +607,7 @@ associados a cada critério.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.78\textwidth]{imagens/criterios.png}
+    \includegraphics[width=0.78\textwidth]{imagens/criterios_1.png}
     \caption{Critérios de avaliação no processo de graduação de 
     cartas TCG: cantos, bordas, superfície e centralização, 
     ilustrados sobre carta do conjunto de dados.}
@@ -778,17 +777,23 @@ constituem o ponto de partida padrão para adaptação do YOLOv8 a novos domíni
 seja por meio de inferência direta ou de \textit{fine-tuning} \cite{Dobrzycki2025,
 Situ2023}.
 
-No presente trabalho, a escolha do YOLOv8 está relacionada à sua adequação ao
-problema investigado. Como os defeitos em cartas TCG podem ser pequenos,
-localizados e visualmente sutis, a tarefa exige um detector capaz de preservar
-informações espaciais e operar de forma eficiente. Além disso, o YOLOv8 possui
-variantes com diferentes relações entre custo computacional e desempenho, o que
-favorece sua aplicação em estudos experimentais com conjuntos reduzidos de dados
-\cite{Ramos2025}. Em cenários de adaptação de modelos pré-treinados,
-\citeonline{Dobrzycki2025} investigam estratégias de \textit{transfer learning}
-em arquiteturas YOLOv8 e YOLOv10, demonstrando que a escolha da configuração de
-treinamento depende das características do conjunto de dados e dos recursos
-computacionais disponíveis.
+No presente trabalho, a escolha do YOLOv8 está relacionada à sua 
+adequação ao problema investigado. Como os defeitos em cartas TCG 
+podem ser pequenos, localizados e visualmente sutis, a tarefa exige 
+um detector capaz de preservar informações espaciais e operar de 
+forma eficiente. Em comparação com detectores de dois estágios, como 
+a família R-CNN, o YOLOv8 oferece menor custo computacional e maior 
+velocidade de inferência sem comprometer a acurácia de localização, 
+o que o torna mais adequado para o contexto experimental deste 
+trabalho \cite{Situ2023, Hussain2023}. Além disso, o YOLOv8 possui 
+variantes com diferentes relações entre custo computacional e 
+desempenho, o que favorece sua aplicação em estudos experimentais 
+com conjuntos reduzidos de dados \cite{Ramos2025}. Em cenários de 
+adaptação de modelos pré-treinados, \citeonline{Dobrzycki2025} 
+investigam estratégias de \textit{transfer learning} em arquiteturas 
+YOLOv8 e YOLOv10, demonstrando que a escolha da configuração de 
+treinamento depende das características do conjunto de dados e dos 
+recursos computacionais disponíveis.
 
 O modelo base (\textit{baseline}) adotado neste trabalho 
 corresponde ao YOLOv8 inicializado com pesos pré-treinados 
@@ -846,17 +851,27 @@ de convergência.
 \subsection{Detecção de Objetos em Cenários com Dados Limitados}
 \label{subsec:low_data_detection}
 
-
 A detecção de objetos em cenários com dados limitados constitui um
 problema relevante em visão computacional, especialmente em domínios
-nos quais a coleta e a anotação de imagens são custosas. Em tarefas de
-detecção, além de reconhecer a classe de interesse, o modelo também
-deve localizar espacialmente cada instância na imagem por meio de
-caixas delimitadoras \cite{Ramos2025}. Essa exigência torna o processo
-mais sensível à escassez de exemplos rotulados, uma vez que, além da
-imagem, é necessário dispor de anotações consistentes indicando a
-localização de cada objeto ou defeito de interesse \cite{Situ2023}.
+nos quais a coleta e a anotação de imagens são custosas. Neste trabalho,
+o termo \textit{baixo volume de dados} refere-se a conjuntos nos quais
+o número de exemplos anotados é insuficiente para treinar modelos de
+detecção profundos com capacidade de generalização adequada, tornando
+necessário o uso de estratégias complementares como \textit{transfer
+learning} e aumento de dados \cite{Chen2021}. Não há um limiar absoluto
+universalmente aceito para esse conceito, pois o volume considerado
+limitado depende da complexidade visual da tarefa e da arquitetura
+utilizada \cite{Wang2022}. No presente trabalho, esse cenário é
+caracterizado pelo conjunto de 88 cartas disponível, volume
+substancialmente inferior ao utilizado nos estudos de referência do
+domínio \cite{Nahar2025}.
 
+Em tarefas de detecção, além de reconhecer a classe de interesse,
+o modelo também deve localizar espacialmente cada instância na imagem
+por meio de caixas delimitadoras \cite{Ramos2025}. Essa exigência torna
+o processo mais sensível à escassez de exemplos rotulados, uma vez que,
+além da imagem, é necessário dispor de anotações consistentes indicando
+a localização de cada objeto ou defeito de interesse \cite{Situ2023}.
 Em conjuntos reduzidos, modelos baseados em \textit{deep learning}
 tendem a apresentar maior risco de \textit{overfitting} e menor
 capacidade de generalização, pois há poucos exemplos disponíveis para
@@ -864,14 +879,11 @@ representar adequadamente a variabilidade visual dos objetos ou
 defeitos \cite{Wang2022}. Esse problema torna-se ainda mais crítico em
 aplicações de inspeção visual, nas quais os defeitos podem ser pequenos,
 sutis, desbalanceados e difíceis de distinguir do fundo da imagem
-\cite{Chen2021,Wang2022}. No presente trabalho, essa limitação se
-manifesta no conjunto reduzido de imagens de cartas TCG e na presença
-de defeitos visualmente sutis, como riscos superficiais, desgastes e
-pequenas dobras \cite{Nahar2025}. Por esse motivo, a pesquisa
-não adota um protocolo formal de \textit{Few-Shot Object Detection}, mas
-se insere no contexto da detecção de objetos com baixo volume de dados,
-avaliando estratégias como \textit{transfer learning}, aumento de dados e
-uso de imagens fotométricas derivadas para melhorar o desempenho do detector
+\cite{Chen2021, Wang2022}. Por esse motivo, a pesquisa não adota um
+protocolo formal de \textit{Few-Shot Object Detection}, mas se insere
+no contexto da detecção de objetos com baixo volume de dados, avaliando
+estratégias como \textit{transfer learning}, aumento de dados e uso de
+imagens fotométricas derivadas para melhorar o desempenho do detector
 \cite{Situ2023}.
 
 % ---------------------------------------------------------------
@@ -1147,7 +1159,7 @@ Uma tabela comparativa ajuda a sintetizar as diferenças entre os trabalhos:
     \centering
     \caption{Comparação entre trabalhos relacionados}
     \label{tab:trabalhos_relacionados}
-    \footnotesize
+    \scriptsize
     \begin{tabular}{p{2.2cm}|p{2.6cm}|p{2.8cm}|p{2.8cm}|p{2.8cm}}
         \toprule
         \textbf{Critério} & \textbf{Nahar2025} & \textbf{Chen2024} & \textbf{Situ2023} & \textbf{Este trabalho} \\
